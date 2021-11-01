@@ -61,10 +61,10 @@ function draw() {
 function keydown() {
     keycode = event.keyCode;
     switch(keycode) {
-        case 37: dx = -15; break;
-        case 38: dy = -5; break;
-        case 39: dx = 15; break; 
-        case 40: dy = 5; break;
+        case 37: dx = -2; break;
+        case 38: dy = -2; break;
+        case 39: dx = 2; break; 
+        case 40: dy = 2; break;
     }
 }
 
