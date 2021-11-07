@@ -6,6 +6,11 @@ let keycode; // 키보드 입력 변수
 
 let x = 600, y = 300; // 캐릭터 처음 위치
  let ellie_w = 16, ellie_h = 16; // 캐릭터 가로 세로 사이즈
+ let tileX, tileY;
+let keyUpPressed, keyDownPressed, keyLeftPressed, keyRightPressed;
+
+let tile = new Image();
+tile.src = "tiles.png";
 
 let background = new Image(); // 사막 배경
 background.src = "background1.png";
@@ -43,6 +48,7 @@ function Init() { // body가 브라우저에 올라올 때 실행되는 함수
 }
 
 function gamestart() {
+    ctx.drawImage(background, 0, 0, 1200, 590);
     moveEllie(); // 캐릭터 움직이기
     draw(); // 움직인 후 다시 그리기
 }
@@ -57,8 +63,8 @@ function moveEllie() {
 }
 
 function draw() {
-    ctx.drawImage(background, 0, 0, 1200, 590); // 배경 그리기
-    ctx.drawImage(ellie, x-ellie_w, y-ellie_h, ellie_w*2, ellie_h*2); // 캐릭턱 그리기
+     // 배경 그리기
+    ctx.drawImage(tile, 16*tileX, 16*tileY, 16, 16, x-ellie_w, y-ellie_h, ellie_w*2, ellie_h*2); // 캐릭터 그리기
 }
 
 function keydown() {
@@ -66,19 +72,28 @@ function keydown() {
     switch(keycode) {
         case 37: // left
             dx = -2; 
-            ellie.src = "image/left-walk.png";
+            if(tileX == 4) {
+                tileX = 0;
+            }
+            else
+                tileX = 4;
+            
+            tileY = 4;
             break;
         case 38: // up
-            dy = -2; 
-            ellie.src = "image/behind-walk.png";
+            dy = -2;
+            tileX = 3;
+            tileY = 4; 
             break;
         case 39: // right
             dx = 2; 
-            ellie.src = "image/right-walk.png";
+            tileX = 4;
+            tileY = 4; 
             break; 
         case 40: // down
             dy = 2; 
-            ellie.src = "image/front-walk.png";
+            tileX = 2;
+            tileY = 4; 
             break;
     }
 }
@@ -86,9 +101,25 @@ function keydown() {
 function keyup() {
     keycode=event.keyCode;
     switch(keycode){
-        case 37: dx = 0; break;
-        case 38: dy = 0; break;
-        case 39: dx = 0; break;
-        case 40: dy = 0; break;
+        case 37: 
+            dx = 0; 
+            tileX = 0;
+            tileY = 4;
+            break;
+        case 38: 
+            dy = 0; 
+            tileX = 6;
+            tileY = 4;
+            break;
+        case 39: 
+            dx = 0;
+            tileX = 0;
+            tileY = 4; 
+            break;
+        case 40: 
+            dy = 0;
+            tileX = 5;
+            tileY = 4;
+            break;
     }
 }
