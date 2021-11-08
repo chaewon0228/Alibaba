@@ -18,13 +18,15 @@ image-rendering:pixelated;
 </style>
 <title>열려라 참깨!</title>
 </head>
-<body onload="Init()" onkeydown="keydown()" onkeyup="keyup()">
-  <canvas id="c1" width="1200" height="590"></canvas>
+<body onload="Init()" onkeydown="keydown()" onkeyup="keyup()" >
+  <canvas id="c1" width="800" height="600" onclick="weapon(event)"></canvas>
+  <!--
     <audio loop id="audio">
         <source id="audioSource">
       Your browser does not support the audio element.
       </audio>
     <button id="audioButton">오디오 재생</button>
+    -->
     <script src="index.js"></script>
   </body>
 </html>
