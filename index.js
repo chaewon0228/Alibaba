@@ -4,6 +4,7 @@ let canvas, ctx; // 캔버스 변수
 let dx = 0, dy = 0; // 이동할 좌표 변수
 let keycode; // 키보드 입력 변수
 
+
 let x = 20, y = 20; // 캐릭터 처음 위치
  let ellie_w = 16, ellie_h = 16; // 캐릭터 가로 세로 사이즈
 
@@ -48,10 +49,9 @@ btn.addEventListener('click', loadAudio);
 function Init() { // body가 브라우저에 올라올 때 실행되는 함수
     canvas = document.getElementById("c1");
     ctx = canvas.getContext("2d");
+    
     canvas_x = canvas.clientWidth;
     canvas_y = canvas.clientHeight;
-    
-
     gamestart();
     setInterval(gamestart, 10);
     // gamestart 함수를 최초 실행 후 반복 실행
@@ -77,13 +77,13 @@ function draw() {
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height); // 배경 그리기
     ctx.drawImage(ellie, x-ellie_w, y-ellie_h, ellie_w*2, ellie_h*2); // 캐릭터 그리기
     if(isWeaponShown == 1) {
-        ctx.drawImage(w, click_x-ellie_w, click_y-ellie_h, ellie_w*2, ellie_h*2);
+        ctx.drawImage(w, click_x/2, click_y-(ellie_h*5), ellie_w*2, ellie_h*2);
     }
 }
 
 function weapon(event) {
-    click_x = event.pageX - ctx.canvas.offsetLeft;
-    click_y = event.pageY - ctx.canvas.offsetTop;
+    click_x = event.clientX;
+    click_y = event.clientY;
     console.log(click_x + " "+click_y);
     
     clearTimeout(weaponId);
