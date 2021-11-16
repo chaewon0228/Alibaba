@@ -44,5 +44,32 @@
     <body>
         <a class="start" href="start.html">START</a>
         <p class="name">Alibaba</p>
+        <audio loop id="audio">
+            <source id="audioSource">
+          Your browser does not support the audio element.
+          </audio>
+          <script>
+                document.addEventListener("click", function(event) {
+                const audio = document.querySelector('#audio');
+                const btn = document.getElementById('audioButton');
+
+                function loadAudio() {
+                    let source = document.querySelector("#audioSource");
+                    source.src = 'egypt.mp3';
+                    audio.load();
+                    playAudio();
+                }
+
+                function playAudio() {
+                    audio.volume = 0.2;
+                    audio.loop = true;
+                    audio.play();
+                }
+
+                loadAudio();
+
+
+            })
+          </script>
     </body>
 </html>
