@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function(event){
     let dataText = [ "도시에서 열쇠를 얻어 배를 탔다!", "이 배는 어디로 가는걸까...?", "나는 어디로 가게 되는 걸까...?", "너무 무서워서 탈출하고 싶지만 삼촌이 두려워 어쩔 수가 없다.", "바다 냄새....",
-"어? 저건 뭐지?", "육지가 보인다!", "근데.. 저기는... 숲??????"];
+"어? 저건 뭐지?", "육지가 보인다!", "근데.. 저기는... 숲?????"];
     
   function typeWriter(text, i, fnCallback) {
     if (i < (text.length)) {
