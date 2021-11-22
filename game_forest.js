@@ -57,6 +57,9 @@ let tileset = null;
 let tilesetURL = "image/tile_forest.png";
 let tilesetLoaded = false;
 
+let lives = 0;
+let canvas = null;
+
 
 // 바닥 종류
 let floorTypes = {
@@ -246,6 +249,7 @@ function getFrame(sprite, duration, time, animated){
 }
 
 window.onload = function(){
+	canvas = document.getElementById('game');
 	context = document.getElementById('game').getContext("2d");
 	requestAnimationFrame(drawGame);
 	context.font = "bold 10pt sans-serif";
@@ -280,7 +284,7 @@ window.onload = function(){
 	}
 };
 
-function drawGame(){
+function drawGame() {
 	if(context==null) { return; }
 	if(!tilesetLoaded) { requestAnimationFrame(drawGame); return; }
 
@@ -325,4 +329,40 @@ function drawGame(){
 		player.dimensions[0], player.dimensions[1]);
 	lastFrameTime = currentFrameTime;
 	requestAnimationFrame(drawGame);
+
+	if(lives <= 0) { gameover(); return; }
+
+	// draw darkness shading
+	for(let i = 0; i<viewport.screen[0]; i+=8) {
+		for(let j = 0; j<viewport.screen[1]; j+=8) {
+			let opacity = Math.sqrt(Math.pow((i)-(viewport.offset[0] + player.position[0] + 8), 2) + Math.pow((j)-(viewport.offset[1] + player.position[1] + 8), 2)) / 180;
+			context.fillStyle = "rgba(0,0,0," + opacity + ")";
+			context.fillRect(i, j, 8, 8);
+		}
+	}
+
+	for(let i=0; i<3; i++) {
+		if(i+1 <= lives) {
+			context.drawImage(tileset, 3*16, 5*16, sprite[0].w, sprite[0].h, tileW*i+5, 5, tileW, tileH);
+		}
+		else {
+			context.drawImage(tileset, 1*16, 5*16, sprite[0].w, sprite[0].h, tileW*i+5, 5, tileW, tileH);
+		}
+	}
+
+	if(lives <= 0) {
+		gameover();
+		return;
+	}
+}
+
+function gameover() {
+	let gameoverText = document.getElementById("gameover");
+	let gameoverButton = document.getElementById("container");
+	gameoverText.style.display = "block";
+	gameoverButton.style.display = "flex";
+
+	context.fillStyle = "rgba(0,0,0,0.8)";
+	context.fillRect(0, 0, viewport.screen[0], viewport.screen[1]);
+	return;
 }

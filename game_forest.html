@@ -11,6 +11,48 @@
             padding: 0;
 			cursor: crosshair;
 		}
+		@font-face {
+                font-family: 'arcade';
+                src: url('font/arcade.ttf') format('truetype');
+                font-weight: normal;
+                font-style: normal; 
+            }
+		.container {
+			position: fixed;
+			display: none;
+			width: 100%;
+			justify-content: center;
+			top: 200px;
+			margin: 0 auto;
+		}
+		.replay {
+			margin-right: 50px;
+		}
+		.back {
+			margin-left: 50px;
+		}
+		button {
+			padding: 20px;
+			font-size: 50px;
+			font-family: arcade;
+			border-radius: 40px;
+			border: none;
+		}
+		.gameover {
+			margin: 0;
+			position: fixed;
+			top: 0px;
+			width: 100%;
+			text-align: center;
+			font-size: 150px;
+			font-family: arcade;
+			color: white;
+			display: none;
+		}
+		button:hover {
+			color: white;
+			background-color: black;
+		}
 		
 	</style>
 	<script src="game_forest.js"></script>
@@ -18,6 +60,11 @@
 <body style="overflow: hidden;">
 	<div id = "wrapper">
 		<canvas id="game" width="1600" height="1000"></canvas>
+	</div>
+	<p class="gameover" id="gameover">GAME OVER</p>
+	<div class="container" id="container">
+		<button class="replay">replay</button>
+		<button class="back">go back</button>
 	</div>
 	
 
