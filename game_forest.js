@@ -57,7 +57,7 @@ let tileset = null;
 let tilesetURL = "image/tile_forest.png";
 let tilesetLoaded = false;
 
-let lives = 0;
+let lives = 3;
 let canvas = null;
 
 
@@ -235,6 +235,90 @@ Character.prototype.moveDirection = function(d, t) {
 	}
 };
 
+let bat = new Image();
+bat.src = 'image/bat.png';
+
+// 몬스터 클래스
+////////////////////////////////////////////
+class Monster {
+	constructor() {
+		this.isFly = 0;
+		this.delayMove	= {};
+		this.delayMove[floorTypes.path]	= 180;
+		this.delayMove[floorTypes.grass]= 350;
+		this.delayMove[floorTypes.sand]= 1100;
+		this.position = [Math.floor(Math.random() * screen.width), Math.floor(Math.random() * screen.height)];
+		this.direction = directions.up;
+		this.distance = Math.floor(Math.random() * 150) + 30;
+		this.move = function() {
+			if(this.canMoveX()==false) {
+				this.direction = directions.up;
+			}
+			if(this.canMoveY()==false) {
+				this.direction = directions.right;
+			}
+			// if(typeof this.delayMove[tileTypes[gameMap[toIndex(this.position[0]/50,this.position[1])/50]].floor]=='undefined') { this.distance = Math.floor(Math.random() * 150) + 30; }
+			if(this.distance >= 0) {
+				switch(this.direction) {
+					case directions.up :
+						this.position[1]-=3;
+						break;
+					case directions.down:
+						this.position[1]+=3;
+						break;
+					case directions.left:
+						this.position[0]-=3;
+						break;
+					case directions.right:
+						this.position[0]+=3;
+				}
+				this.distance--;
+				context.drawImage(bat, 0, this.isFly*50, 50, 50, this.position[0], this.position[1], tileW+5, tileH+5);
+			}
+			else {
+				this.distance = Math.floor(Math.random() * 150) + 30;
+				let d = Math.floor(Math.random() * 4);
+				switch (d) {
+					case 0 : this.direction = directions.up; break;
+					case 1 : this.direction = directions.down; break;
+					case 2: this.direction = directions.left; break;
+					case 3: this.direction = directions.right; break;
+				}
+				context.drawImage(bat, 0, this.isFly*50, 50, 50, this.position[0], this.position[1], tileW+5, tileH+5);
+			}
+			//clearTimeout(this.flying);
+			this.flying = setTimeout(() => { 
+				if(this.isFly == 0) this.isFly = 1;
+				else this.isFly = 0;
+			}, 1000);
+			
+		};
+		this.canMoveX = function () {
+			if((this.position[0] < 0 && this.direction == directions.left) || (this.position[0] > screen.width && this.direction == directions.right)) return false;
+			return true;
+		}
+		this.canMoveY = function () {
+			if((this.position[1] < 0 && this.direction == directions.up) || (this.position[1] > screen.height && this.direction == directions.down)) return false;
+			return true;
+		}
+	}
+}
+
+let monsters = [];
+let monsterCnt = 20;
+let isMonsterShown = 0;
+
+setTimeout(() => {
+	for(let i = 0; i<monsterCnt; i++) {
+		monsters[i] = new Monster();
+	}
+	isMonsterShown = 1;
+}, 1500);
+
+let isWeaponShown;
+
+//////////////////////////////////////////////
+
 function toIndex(x, y){
 	return((y * mapW) + x);
 }
@@ -248,7 +332,11 @@ function getFrame(sprite, duration, time, animated){
 	}
 }
 
+let clickPosition = [];
+let weaponId;
+
 window.onload = function(){
+	let body = document.querySelector("body");
 	canvas = document.getElementById('game');
 	context = document.getElementById('game').getContext("2d");
 	requestAnimationFrame(drawGame);
@@ -259,6 +347,15 @@ window.onload = function(){
 	});
 	window.addEventListener("keyup", function(e) {
 		if(e.keyCode>=37 && e.keyCode<=40) { keysDown[e.keyCode] = false; }
+	});
+
+	body.addEventListener("click", function (e) {
+		clickPosition[0] = e.screenX;
+		clickPosition[1] = e.screenY;
+
+		clearTimeout(weaponId);
+    	isWeaponShown = 1;
+    	weaponId = setTimeout( () => {isWeaponShown = 0; }, 300);
 	});
 
 	viewport.screen = [document.getElementById('game').width, document.getElementById('game').height];
@@ -282,7 +379,13 @@ window.onload = function(){
 			tileTypes[x]['spriteDuration'] = t;
 		}
 	}
+	
 };
+
+// 공격 지연을 위한 변수
+//////////////
+let isAttackable = 1;
+///////////////
 
 function drawGame() {
 	if(context==null) { return; }
@@ -306,6 +409,7 @@ function drawGame() {
 		else if(keysDown[39] && player.canMoveRight())	{ player.moveRight(currentFrameTime); }
 	}
 
+	
 	viewport.update(player.position[0] + (player.dimensions[0]/2), player.position[1] + (player.dimensions[1]/2));
 
 	context.fillStyle = "#0080ff";
@@ -328,34 +432,85 @@ function drawGame() {
 		viewport.offset[0] + player.position[0], viewport.offset[1] + player.position[1],
 		player.dimensions[0], player.dimensions[1]);
 	lastFrameTime = currentFrameTime;
-	requestAnimationFrame(drawGame);
 
-	if(lives <= 0) { gameover(); return; }
+
+
+
+
+
+	//////////////////////////////////
+	if(isMonsterShown == 1) {
+		for(let i=0; i<monsters.length; i++) {
+			monsters[i].move();
+			// clearTimeout(monsters[i].flying);
+			if(clickPosition[0] >= monsters[i].position[0] && clickPosition[0] <= monsters[i].position[0] + tileW && clickPosition[1] >= monsters[i].position[1]  && clickPosition[1] <= monsters[i].position[1] + tileH) {
+				console.log("kill");
+				monsters[i] = new Monster();
+			}
+			
+			
+		}
+		if(isAttackable == 1) {
+			for(let i=0; i<monsters.length; i++) {
+				if(Math.sqrt(Math.pow((monsters[i].position[0] + tileW/2)-(viewport.offset[0] + player.position[0] + 8), 2) + Math.pow((monsters[i].position[1] + tileH/2)-(viewport.offset[1] + player.position[1] + 8), 2)) < Math.sqrt(2000)) {
+					isAttackable = 0;
+					lives--;
+					console.log(lives);
+					setTimeout(() => {isAttackable = 1;}, 1000);
+					break;
+				}
+				
+			}
+		}
+
+		
+	}
+
+	
+	
+	
+	
+
+	
+	
+	/////////////////////
 
 	// draw darkness shading
-	for(let i = 0; i<viewport.screen[0]; i+=8) {
-		for(let j = 0; j<viewport.screen[1]; j+=8) {
-			let opacity = Math.sqrt(Math.pow((i)-(viewport.offset[0] + player.position[0] + 8), 2) + Math.pow((j)-(viewport.offset[1] + player.position[1] + 8), 2)) / 180;
+	
+	for(let i = 0; i<viewport.screen[0]; i+=12) {
+		for(let j = 0; j<viewport.screen[1]; j+=12) {
+			let opacity = Math.min((Math.sqrt(Math.pow((i)-(viewport.offset[0] + player.position[0] + 8), 2) + Math.pow((j)-(viewport.offset[1] + player.position[1] + 8), 2)) - 50) / 200, 1);
 			context.fillStyle = "rgba(0,0,0," + opacity + ")";
-			context.fillRect(i, j, 8, 8);
+			context.fillRect(i, j, 12, 12);
 		}
 	}
+	if(isWeaponShown == 1) {
+		context.drawImage(tileset, 0, 5*16+1, 16, 16, clickPosition[0]-tileW/2, clickPosition[1]-tileH/2, 70, 70);
+	}
+	
 
+	// printLives
 	for(let i=0; i<3; i++) {
 		if(i+1 <= lives) {
-			context.drawImage(tileset, 3*16, 5*16, sprite[0].w, sprite[0].h, tileW*i+5, 5, tileW, tileH);
+			// 채워진 하트
+			context.drawImage(tileset, 3*16, 5*16+1, 16-1, 16, tileW*i+20, 20, tileW, tileH-1);
 		}
 		else {
-			context.drawImage(tileset, 1*16, 5*16, sprite[0].w, sprite[0].h, tileW*i+5, 5, tileW, tileH);
+			// 비워진 하트
+			context.drawImage(tileset, 1*16, 5*16+1, 16, 16, tileW*i+20, 20, tileW, tileH);
 		}
 	}
+	if(lives <= 0) { gameover(); return; }
 
-	if(lives <= 0) {
-		gameover();
-		return;
-	}
+
+	////////////////////////////////
+	
+	requestAnimationFrame(drawGame);
+
 }
 
+
+// gameover
 function gameover() {
 	let gameoverText = document.getElementById("gameover");
 	let gameoverButton = document.getElementById("container");
@@ -366,3 +521,4 @@ function gameover() {
 	context.fillRect(0, 0, viewport.screen[0], viewport.screen[1]);
 	return;
 }
+
