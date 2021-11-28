@@ -39,7 +39,7 @@ document.addEventListener("click", function(event) {
   
   function loadAudio() {
     let source = document.querySelector("#audioSource");
-    source.src = 'typing.wav';
+    source.src = 'sound/typing.wav';
     audio.load();
     playAudio();
 }
