@@ -48,6 +48,8 @@ let gameMap = [
 ];
 
 let mapTileData = new TileMap();
+let audio;
+let source;
 
 // 타일 크기
 let tileW = 50, tileH = 50;
@@ -65,15 +67,16 @@ function touchbox(){
 	// 박스 닿았을 때 처리
 	console.log("box");
 	getkey = true;
-
+	loadAudio(4);
 }
 function touchcave(){
 	console.log("cave");
-
 	if(getkey == true){
-		// 키가 있을 때 게임 종료
+		location.href = "end_game.html";
 	}
 }
+
+let lives = 5;
 
 let tileset = null, caveset = null, speedset = null;
 let tilesetURL = "tile_desert.png";
@@ -131,6 +134,12 @@ MapObject.prototype.placeAt = function(nx, ny){
 	
 	mapTileData.map[toIndex(nx, ny)].object = this;
 };
+MapObject.prototype.getX = function() {
+	return this.x;
+}
+MapObject.prototype.getY = function() {
+	return this.y;
+}
 
 // 바닥 종류
 let floorTypes = {
@@ -165,7 +174,8 @@ let tileTypes = {
 
 	14: { colour:"#e8bd7a", floor:floorTypes.grass, sprite:[{x:0,y:17,w:16,h:14}]},    // 섬
 
-	15: { colour:"#e8bd7a", floor:floorTypes.solid, sprite:[{x:32,y:33,w:16,h:14}]}    // 배
+	15: { colour:"#e8bd7a", floor:floorTypes.solid, sprite:[{x:32,y:33,w:16,h:14}]} ,   // 배
+	16: { colour:"#e8bd7a", floor:floorTypes.grass, sprite:[{x:32,y:32,w:15,h:16}]}    // 깨진
 };
 
 function Tile(tx, ty, tt){
@@ -251,15 +261,15 @@ function Character(){
 
 	this.delayMove	= {};
 	this.delayMove[floorTypes.path]	= 180;
-	this.delayMove[floorTypes.grass]= 150;
+	this.delayMove[floorTypes.grass]= 350;
 	this.delayMove[floorTypes.sand]= 1100;
 
 	this.direction	= directions.sleep;
 	this.sprites = {};
 	this.sprites[directions.up]		= [{x:97,y:64,w:15,h:16}];
 	this.sprites[directions.right]	= [{x:16,y:64,w:15,h:16}];
-	this.sprites[directions.down]	= [{x:81,y:65,w:15,h:15}];
-	this.sprites[directions.left]	= [{x:48,y:49,w:16,h:15}];
+	this.sprites[directions.down]	= [{x:81,y:65,w:15,h:16}];
+	this.sprites[directions.left]	= [{x:65,y:49,w:15,h:15}];
 
 	this.sprites[directions.sleep] = [{x:112,y:49,w:15,h:15}];
 	
@@ -335,10 +345,42 @@ Character.prototype.canMoveDirection = function(d) {
 	}
 };
 
-Character.prototype.moveLeft = function(t) { this.tileTo[0]-=1; this.timeMoved = t; this.direction = directions.left; };
-Character.prototype.moveRight = function(t) { this.tileTo[0]+=1; this.timeMoved = t; this.direction = directions.right; };
-Character.prototype.moveUp = function(t) { this.tileTo[1]-=1; this.timeMoved = t; this.direction = directions.up; };
-Character.prototype.moveDown = function(t) { this.tileTo[1]+=1; this.timeMoved = t; this.direction = directions.down; };
+Character.prototype.moveLeft = function(t) { 
+	this.tileTo[0]-=1; this.timeMoved = t; this.direction = directions.left; 
+	if(this.sprites[directions.left][0].x == 65) this.sprites[directions.left][0].x = 81;
+	else this.sprites[directions.left][0].x = 65;
+	if(weapon.size != weaponSize[1]) {
+		weapon.position[0] = viewport.offset[0] + player.position[0] + 20;
+		weapon.position[1] = viewport.offset[1] + player.position[1] + 10;
+	}
+};
+Character.prototype.moveRight = function(t) { 
+	this.tileTo[0]+=1; this.timeMoved = t; this.direction = directions.right; 
+	if(this.sprites[directions.right][0].x == 16) this.sprites[directions.right][0].x = 0;
+	else this.sprites[directions.right][0].x = 16;
+	if(weapon.size != weaponSize[1]) {
+		weapon.position[0] = viewport.offset[0] + player.position[0] - 5;
+		weapon.position[1] = viewport.offset[1] + player.position[1] + 10;
+	}
+};
+Character.prototype.moveUp = function(t) { 
+	this.tileTo[1]-=1; this.timeMoved = t; this.direction = directions.up; 
+	if(this.sprites[directions.up][0].x == 96) this.sprites[directions.up][0].x = 48;
+	else this.sprites[directions.up][0].x = 96;
+	if(weapon.size != weaponSize[1]) {
+		weapon.position[0] = viewport.offset[0] + player.position[0] + 10;
+		weapon.position[1] = viewport.offset[1] + player.position[1] + 10;
+	}
+};
+Character.prototype.moveDown = function(t) { 
+	this.tileTo[1]+=1; this.timeMoved = t; this.direction = directions.down; 
+	if(this.sprites[directions.down][0].x == 81) this.sprites[directions.down][0].x = 32;
+	else this.sprites[directions.down][0].x = 81;
+	if(weapon.size != weaponSize[1]) {
+		weapon.position[0] = viewport.offset[0] + player.position[0] + 10;
+		weapon.position[1] = viewport.offset[1] + player.position[1] - 10;
+	}
+};
 
 Character.prototype.moveDirection = function(d, t) {
 	switch(d){
@@ -366,8 +408,94 @@ function getFrame(sprite, duration, time, animated){
 	}
 }
 
+let bat = new Image();
+bat.src = 'image/bat.png';
+let clickPosition = [];
+let weaponId;
+
+class Monster {
+	constructor() {
+		this.isFly = 0;
+		this.delayMove	= {};
+		this.delayMove[floorTypes.path]	= 180;
+		this.delayMove[floorTypes.grass]= 350;
+		this.delayMove[floorTypes.sand]= 1100;
+		this.position = [Math.floor(Math.random() * screen.width), Math.floor(Math.random() * screen.height)];
+		this.direction = directions.up;
+		this.distance = Math.floor(Math.random() * 150) + 30;
+		this.move = function() {
+			if(this.canMoveX()==false) {
+				this.direction = directions.up;
+			}
+			if(this.canMoveY()==false) {
+				this.direction = directions.right;
+			}
+			// if(typeof this.delayMove[tileTypes[gameMap[toIndex(this.position[0]/50,this.position[1])/50]].floor]=='undefined') { this.distance = Math.floor(Math.random() * 150) + 30; }
+			if(this.distance >= 0) {
+				switch(this.direction) {
+					case directions.up :
+						this.position[1]-=3;
+						break;
+					case directions.down:
+						this.position[1]+=3;
+						break;
+					case directions.left:
+						this.position[0]-=3;
+						break;
+					case directions.right:
+						this.position[0]+=3;
+				}
+				this.distance--;
+				context.drawImage(bat, 0, this.isFly*50, 50, 50, this.position[0], this.position[1], tileW+5, tileH+5);
+			}
+			else {
+				this.distance = Math.floor(Math.random() * 150) + 30;
+				let d = Math.floor(Math.random() * 4);
+				switch (d) {
+					case 0 : this.direction = directions.up; break;
+					case 1 : this.direction = directions.down; break;
+					case 2: this.direction = directions.left; break;
+					case 3: this.direction = directions.right; break;
+				}
+				context.drawImage(bat, 0, this.isFly*50, 50, 50, this.position[0], this.position[1], tileW+5, tileH+5);
+			}
+			//clearTimeout(this.flying);
+			this.flying = setTimeout(() => { 
+				if(this.isFly == 0) this.isFly = 1;
+				else this.isFly = 0;
+			}, 1000);
+			
+		};
+		this.canMoveX = function () {
+			if((this.position[0] < 0 && this.direction == directions.left) || (this.position[0] > screen.width && this.direction == directions.right)) return false;
+			return true;
+		}
+		this.canMoveY = function () {
+			if((this.position[1] < 0 && this.direction == directions.up) || (this.position[1] > screen.height && this.direction == directions.down)) return false;
+			return true;
+		}
+	}
+}
+
+let monsters = [];
+let monsterCnt = 20;
+let isMonsterShown = 0;
+
+setTimeout(() => {
+	for(let i = 0; i<monsterCnt; i++) {
+		monsters[i] = new Monster();
+	}
+	isMonsterShown = 1;
+}, 1500);
+
+let isWeaponShown;
+
+let coll;
+
 window.onload = function(){
 	context = document.getElementById('game').getContext("2d");
+	let body = document.querySelector("body");
+	audio = document.querySelector('#audio');
 	requestAnimationFrame(drawGame);
 	context.font = "bold 10pt sans-serif";
 
@@ -378,6 +506,39 @@ window.onload = function(){
 		if(e.keyCode>=37 && e.keyCode<=40) { keysDown[e.keyCode] = false; }
 	});
 
+	body.addEventListener("click", function (e) {
+		for(let i=0; i<weaponId; i++) {
+			clearTimeout(i);
+		}
+		clickPosition[0] = e.screenX;
+		clickPosition[1] = e.screenY;
+		weapon.size = weaponSize[1];
+		weapon.position[0] = clickPosition[0]-tileW/2;
+		weapon.position[1] = clickPosition[1]-tileW/2;
+		weaponId = setTimeout(() => {
+			weapon.size = weaponSize[0];
+			if(player.direction == directions.up) {
+				weapon.position[0] = viewport.offset[0] + player.position[0] + 10;
+				weapon.position[1] = viewport.offset[1] + player.position[1] + 10;
+			}
+			else if(player.direction == directions.left) {
+				weapon.position[0] = viewport.offset[0] + player.position[0] + 20;
+				weapon.position[1] = viewport.offset[1] + player.position[1] + 10;
+			}
+			else if(player.direction == directions.right) {
+				weapon.position[0] = viewport.offset[0] + player.position[0] - 5;
+				weapon.position[1] = viewport.offset[1] + player.position[1] + 10;
+			}
+			else if(player.direction == directions.down) {
+				weapon.position[0] = viewport.offset[0] + player.position[0] + 10;
+				weapon.position[1] = viewport.offset[1] + player.position[1] - 10;
+			}
+			clickPosition[0] = 0;
+			clickPosition[1] = 0;
+			target = null;
+		}, 500);
+	});
+
 	viewport.screen = [document.getElementById('game').width, document.getElementById('game').height];
 
 	tileset = new Image();
@@ -386,6 +547,7 @@ window.onload = function(){
 
 	caveset = new Image();
 	caveset.src = cavesetURL;
+	
 	
 	for(x in tileTypes){
 		tileTypes[x]['animated'] = tileTypes[x].sprite.length > 1 ? true : false;
@@ -411,7 +573,7 @@ window.onload = function(){
 				[36, 12], [35, 14], [37, 17], [38, 18], [45, 16],
 				[2, 29], [7, 36], [7, 37], [8, 37], [8, 30], [31, 32]
 			];
-	let coll = new Array(160);
+	coll = new Array(160);
 
 	for(let i = 0; i < coll.length; i++){
 		for(let z = 0; z < 1; z++){
@@ -447,7 +609,11 @@ window.onload = function(){
 
 };
 
-function drawGame(){
+let isAttackable = 1;
+let attackId;
+let target = null;
+
+function drawGame() {
 	if(context==null) { return; }
 	if(!tilesetLoaded) { requestAnimationFrame(drawGame); return; }
 
@@ -520,8 +686,133 @@ function drawGame(){
 		sprite[0].x, sprite[0].y, sprite[0].w, sprite[0].h,
 		viewport.offset[0] + player.position[0], viewport.offset[1] + player.position[1],
 		player.dimensions[0], player.dimensions[1]);
+
+	if(target == null) {
+		for(let i = 0; i < coll.length; i++) {
+			if(clickPosition[0] >= viewport.offset[0] + coll[i].getX()*tileW && clickPosition[0] <= viewport.offset[0] + coll[i].getX()*tileW + tileW && clickPosition[1] >= viewport.offset[1] + coll[i].getY()*tileH  && clickPosition[1] <= viewport.offset[1] + coll[i].getY()*tileH + tileH) {
+				loadAudio(coll[i].type);
+				console.log("object");
+				target = i;
+				mapTileData.map[toIndex(coll[i].x, coll[i].y)] = 0;
+				coll[i].type = 0;
+				gameMap[toIndex(coll[i].x, coll[i].y)] = 16;
+				break;
+			}
+		}
+	}
 		
+		if(isMonsterShown == 1) {
+			for(let i=0; i<monsters.length; i++) {
+				monsters[i].move();
+				// clearTimeout(monsters[i].flying);
+				if(clickPosition[0] >= monsters[i].position[0] && clickPosition[0] <= monsters[i].position[0] + tileW && clickPosition[1] >= monsters[i].position[1]  && clickPosition[1] <= monsters[i].position[1] + tileH) {
+					console.log("kill");
+					monsters[i] = null;
+					monsters[i] = new Monster();
+				}
+				
+				
+			}
+			if(isAttackable == 1) {
+				for(let i=0; i<monsters.length; i++) {
+					if(Math.sqrt(Math.pow((monsters[i].position[0] + tileW/2)-(viewport.offset[0] + player.position[0] + 8), 2) + Math.pow((monsters[i].position[1] + tileH/2)-(viewport.offset[1] + player.position[1] + 8), 2)) < Math.sqrt(2000)) {
+						isAttackable = 0;
+						lives--;
+						console.log(lives);
+						for(let i=0; i<attackId; i++) {
+							clearTimeout(i);
+						}
+						attackId = setTimeout(() => {isAttackable = 1;}, 500);
+						break;
+					}
+					
+				}
+			}
+	
+			
+		}
+		
+		/////////////////////
+	
+		// draw darkness shading
+		
+		for(let i = 0; i<viewport.screen[0]; i+=12) {
+			for(let j = 0; j<viewport.screen[1]; j+=12) {
+				let opacity = Math.min((Math.sqrt(Math.pow((i)-(viewport.offset[0] + player.position[0] + 8), 2) + Math.pow((j)-(viewport.offset[1] + player.position[1] + 8), 2)) - 50) / 200, 1);
+				context.fillStyle = "rgba(0,0,0," + opacity + ")";
+				context.fillRect(i, j, 12, 12);
+			}
+		}
+		context.drawImage(tileset, 0, 5*16+1, 16, 16, weapon.position[0], weapon.position[1], weapon.size, weapon.size);
+		/*
+		if(isWeaponShown == 1) {
+			// context.drawImage(tileset, 0, 5*16+1, 16, 16, clickPosition[0]-tileW/2, clickPosition[1]-tileH/2, 70, 70);
+			context.drawImage(tileset, 0, 5*16+1, 16, 16, weapon.position[0], weapon.position[1], weapon.size, weapon.size);
+			clearTimeout(weaponId);
+			
+			weaponId = setTimeout( () => {isWeaponShown = 0; }, 300);
+		}
+		*/
+		
+	
+		// printLives
+		for(let i=0; i<5; i++) {
+			if(i+1 <= lives) {
+				// 채워진 하트
+				context.drawImage(tileset, 3*16, 5*16+1, 16-1, 16, tileW*i+20, 20, tileW, tileH-1);
+			}
+			else {
+				// 비워진 하트
+				context.drawImage(tileset, 1*16, 5*16+1, 16, 16, tileW*i+20, 20, tileW, tileH);
+			}
+		}
+		if(lives <= 0) { gameover(); return; }
 	
 
 	requestAnimationFrame(drawGame);
 }
+
+// gameover
+function gameover() {
+	let gameoverText = document.getElementById("gameover");
+	let gameoverButton = document.getElementById("container");
+	gameoverText.style.display = "block";
+	gameoverButton.style.display = "flex";
+
+	context.fillStyle = "rgba(0,0,0,0.8)";
+	context.fillRect(0, 0, viewport.screen[0], viewport.screen[1]);
+	return;
+}
+
+let weaponSize = [30, 70];
+let weapon = {
+	position: [0, 0],
+	size : 30
+}
+
+function loadAudio(id) {
+	let source = document.querySelector("#audioSource");
+	audio.load();
+	if(id == 1) {
+		source.src = 'sound/break_bush.wav';
+		playAudio();
+	}
+	else if(id == 3) {
+		source.src = 'sound/break_rock.wav';
+		playAudio();
+	}
+	else if(id == 4) {
+		source.src = 'sound/item.wav';
+		playAudio();
+	}
+	
+	
+	
+}
+
+function playAudio() {
+	audio.volume = 0.2;
+	audio.loop = false;
+	audio.play();
+}
+

@@ -44,6 +44,7 @@ let gameMap = [
 
 let mapTileData = new TileMap();
 
+let getkey = false;
 // 타일 크기
 let tileW = 50, tileH = 50;
 // 맵 크기
@@ -53,9 +54,15 @@ let currentSecond = 0, frameCount = 0, framesLastSecond = 0, lastFrameTime = 0;
 
 let tileEvents = {
 	476: drawpath,
-	479: rideboat
+	479: rideboat,
+    872: touchbox
 };
 
+function touchbox(){
+    console.log("boxbox!");
+	getkey = true;
+
+}
 function drawpath(){
 	gameMap[toIndex(33, 12)] = 5;
 	gameMap[toIndex(34, 12)] = 5;
@@ -64,8 +71,12 @@ function drawpath(){
 function rideboat(){
 	// 배 닿았을 때 처리
 	console.log("ride boat!");
-
+	if(getkey == true){
+		location.href = "end_city.html";
+	}
 }
+
+let lives = 5;
 
 let tileset = null;
 let tilesetURL = "tile_city.png";
@@ -107,6 +118,12 @@ MapObject.prototype.placeAt = function(nx, ny){
 	
 	mapTileData.map[toIndex(nx, ny)].object = this;
 };
+MapObject.prototype.getX = function() {
+	return this.x;
+}
+MapObject.prototype.getY = function() {
+	return this.y;
+}
 
 // 바닥 종류
 let floorTypes = {
@@ -232,7 +249,7 @@ function Character(){
 
 	this.direction	= directions.sleep;
 	this.sprites = {};
-	this.sprites[directions.up]		= [{x:96,y:64,w:16,h:16}];
+	this.sprites[directions.up]		= [{x:97,y:64,w:15,h:16}];
 	this.sprites[directions.right]	= [{x:16,y:64,w:16,h:16}];
 	this.sprites[directions.down]	= [{x:80,y:64,w:16,h:16}];
 	this.sprites[directions.left]	= [{x:48,y:48,w:16,h:16}];
@@ -323,10 +340,42 @@ Character.prototype.canMoveDirection = function(d) {
 	}
 };
 
-Character.prototype.moveLeft = function(t) { this.tileTo[0]-=1; this.timeMoved = t; this.direction = directions.left; };
-Character.prototype.moveRight = function(t) { this.tileTo[0]+=1; this.timeMoved = t; this.direction = directions.right; };
-Character.prototype.moveUp = function(t) { this.tileTo[1]-=1; this.timeMoved = t; this.direction = directions.up; };
-Character.prototype.moveDown = function(t) { this.tileTo[1]+=1; this.timeMoved = t; this.direction = directions.down; };
+Character.prototype.moveLeft = function(t) { 
+	this.tileTo[0]-=1; this.timeMoved = t; this.direction = directions.left; 
+	if(this.sprites[directions.left][0].x == 65) this.sprites[directions.left][0].x = 81;
+	else this.sprites[directions.left][0].x = 65;
+	if(weapon.size != weaponSize[1]) {
+		weapon.position[0] = viewport.offset[0] + player.position[0] + 20;
+		weapon.position[1] = viewport.offset[1] + player.position[1] + 10;
+	}
+};
+Character.prototype.moveRight = function(t) { 
+	this.tileTo[0]+=1; this.timeMoved = t; this.direction = directions.right; 
+	if(this.sprites[directions.right][0].x == 16) this.sprites[directions.right][0].x = 0;
+	else this.sprites[directions.right][0].x = 16;
+	if(weapon.size != weaponSize[1]) {
+		weapon.position[0] = viewport.offset[0] + player.position[0] - 5;
+		weapon.position[1] = viewport.offset[1] + player.position[1] + 10;
+	}
+};
+Character.prototype.moveUp = function(t) { 
+	this.tileTo[1]-=1; this.timeMoved = t; this.direction = directions.up; 
+	if(this.sprites[directions.up][0].x == 96) this.sprites[directions.up][0].x = 48;
+	else this.sprites[directions.up][0].x = 96;
+	if(weapon.size != weaponSize[1]) {
+		weapon.position[0] = viewport.offset[0] + player.position[0] + 10;
+		weapon.position[1] = viewport.offset[1] + player.position[1] + 10;
+	}
+};
+Character.prototype.moveDown = function(t) { 
+	this.tileTo[1]+=1; this.timeMoved = t; this.direction = directions.down; 
+	if(this.sprites[directions.down][0].x == 81) this.sprites[directions.down][0].x = 32;
+	else this.sprites[directions.down][0].x = 81;
+	if(weapon.size != weaponSize[1]) {
+		weapon.position[0] = viewport.offset[0] + player.position[0] + 10;
+		weapon.position[1] = viewport.offset[1] + player.position[1] - 10;
+	}
+};
 Character.prototype.moveDirection = function(d, t) {
 	switch(d){
 		case directions.up:
@@ -353,18 +402,135 @@ function getFrame(sprite, duration, time, animated){
 	}
 }
 
+
+let bat = new Image();
+bat.src = 'image/fly.png';
+let clickPosition = [];
+let weaponId;
+
+class Monster {
+	constructor() {
+		this.isFly = 0;
+		this.delayMove	= {};
+		this.delayMove[floorTypes.path]	= 180;
+		this.delayMove[floorTypes.grass]= 350;
+		this.delayMove[floorTypes.sand]= 1100;
+		this.position = [Math.floor(Math.random() * screen.width), Math.floor(Math.random() * screen.height)];
+		this.direction = directions.up;
+		this.distance = Math.floor(Math.random() * 150) + 30;
+		this.move = function() {
+			if(this.canMoveX()==false) {
+				this.direction = directions.up;
+			}
+			if(this.canMoveY()==false) {
+				this.direction = directions.right;
+			}
+			// if(typeof this.delayMove[tileTypes[gameMap[toIndex(this.position[0]/50,this.position[1])/50]].floor]=='undefined') { this.distance = Math.floor(Math.random() * 150) + 30; }
+			if(this.distance >= 0) {
+				switch(this.direction) {
+					case directions.up :
+						this.position[1]-=3;
+						break;
+					case directions.down:
+						this.position[1]+=3;
+						break;
+					case directions.left:
+						this.position[0]-=3;
+						break;
+					case directions.right:
+						this.position[0]+=3;
+				}
+				this.distance--;
+				context.drawImage(bat, 30, this.isFly*110+30, 50, 50, this.position[0], this.position[1], tileW+5, tileH+5);
+			}
+			else {
+				this.distance = Math.floor(Math.random() * 150) + 30;
+				let d = Math.floor(Math.random() * 4);
+				switch (d) {
+					case 0 : this.direction = directions.up; break;
+					case 1 : this.direction = directions.down; break;
+					case 2: this.direction = directions.left; break;
+					case 3: this.direction = directions.right; break;
+				}
+				context.drawImage(bat, 0, this.isFly*50, 50, 50, this.position[0], this.position[1], tileW+5, tileH+5);
+			}
+			//clearTimeout(this.flying);
+			this.flying = setTimeout(() => { 
+				if(this.isFly == 0) this.isFly = 1;
+				else this.isFly = 0;
+			}, 1000);
+			
+		};
+		this.canMoveX = function () {
+			if((this.position[0] < 0 && this.direction == directions.left) || (this.position[0] > screen.width && this.direction == directions.right)) return false;
+			return true;
+		}
+		this.canMoveY = function () {
+			if((this.position[1] < 0 && this.direction == directions.up) || (this.position[1] > screen.height && this.direction == directions.down)) return false;
+			return true;
+		}
+	}
+}
+
+let monsters = [];
+let monsterCnt = 20;
+let isMonsterShown = 0;
+
+setTimeout(() => {
+	for(let i = 0; i<monsterCnt; i++) {
+		monsters[i] = new Monster();
+	}
+	isMonsterShown = 1;
+}, 1500);
+
+let isWeaponShown;
+let coll;
+
 // 페이지 로드가 완료되면 실행할 함수
 //  -canvas에 대한 그리기 컨텍스트를 context 변수에 할당 / 글꼴
 window.onload = function(){
 	context = document.getElementById('game').getContext("2d");
 	requestAnimationFrame(drawGame);
 	context.font = "bold 10pt sans-serif";
-
+	let body = document.querySelector("body");
 	window.addEventListener("keydown", function(e) {
 		if(e.keyCode>=37 && e.keyCode<=40) { keysDown[e.keyCode] = true; }
 	});
 	window.addEventListener("keyup", function(e) {
 		if(e.keyCode>=37 && e.keyCode<=40) { keysDown[e.keyCode] = false; }
+	});
+
+	body.addEventListener("click", function (e) {
+		for(let i=0; i<weaponId; i++) {
+			clearTimeout(i);
+		}
+		clickPosition[0] = e.screenX;
+		clickPosition[1] = e.screenY;
+		weapon.size = weaponSize[1];
+		weapon.position[0] = clickPosition[0]-tileW/2;
+		weapon.position[1] = clickPosition[1]-tileW/2;
+		weaponId = setTimeout(() => {
+			weapon.size = weaponSize[0];
+			if(player.direction == directions.up) {
+				weapon.position[0] = viewport.offset[0] + player.position[0] + 10;
+				weapon.position[1] = viewport.offset[1] + player.position[1] + 10;
+			}
+			else if(player.direction == directions.left) {
+				weapon.position[0] = viewport.offset[0] + player.position[0] + 20;
+				weapon.position[1] = viewport.offset[1] + player.position[1] + 10;
+			}
+			else if(player.direction == directions.right) {
+				weapon.position[0] = viewport.offset[0] + player.position[0] - 5;
+				weapon.position[1] = viewport.offset[1] + player.position[1] + 10;
+			}
+			else if(player.direction == directions.down) {
+				weapon.position[0] = viewport.offset[0] + player.position[0] + 10;
+				weapon.position[1] = viewport.offset[1] + player.position[1] - 10;
+			}
+			clickPosition[0] = 0;
+			clickPosition[1] = 0;
+			target = null;
+		}, 500);
 	});
 
 	viewport.screen = [document.getElementById('game').width, document.getElementById('game').height];
@@ -390,25 +556,50 @@ window.onload = function(){
 	}
 	mapTileData.buildMapFromData(gameMap, mapW, mapH);
 
-	let arr = [
-		[4, 4], [5, 4], [6, 4], [4, 5], [4, 6], 
-		[5, 5], [5, 6], [6, 5], [6, 6], [4, 8],
-		[5, 8], [3, 10], [4, 10], [3, 11], [4, 11],
-		[8, 8], [8, 9], [8, 10], [8, 11], [3, 3], 
-		[6, 30], [11, 14], [12, 14], [12, 15], [12, 16],
-		[12, 17], [12, 18], [12, 19], [12, 20], [12, 21],
-		[12, 22], [12, 23], [12, 24], [12, 25], [12, 26],
-		[12, 27], [12, 28], [12, 29], [12, 30], [13, 30],
-		[14, 30], [15, 30], [16, 30],  [17, 30], [18, 30]
-	];
-	let coll = new Array(200);
-	
+    let arr = [
+        [4,4],[4,5],[4,6],[7,6],[7,7],
+        [7,8],[6,4],[5,10],[6,6],[4,8],
+        [5,8],[3,10],[4,10],[8,8],[8,9],
+        [8,10],[12,3],[13,4],[14,5],[15,6],
+        [16,7],[17,8],[18,9],[19,10],[15,3],
+        [16,4],[17,5],[18,6],[19,7],[23,3],
+        [25,3],[27,3],[29,3],[30,4],[30,6],
+        [30,8],[30,10],[28,10],[26,10],[24,10],
+        [4,14],[6,30],[21,21],[22,22],[20,22]
+    ];
+
+    coll = new Array(160);
+
+    let row = 14, col = 3;
+    for(let i=0; i<coll.length; i++){
+		coll[i] = new MapObject(1);
+    }
+    for(let i=0; i<coll.length; i++){
+        if(i<45){
+            coll[i].placeAt(arr[i][0], arr[i][1]);
+        }
+        else if(i<96){
+            if(row == 31){
+                row = 14;
+                col += 2;
+            }
+            coll[i].placeAt(col, row);
+            row++;
+        }
+        else{
+            let rand1 = Math.floor(Math.random()*19 ) + 11;
+			let rand2 = Math.floor(Math.random()*16 ) + 14;
+
+			//console.log(rand1 + " " + rand2);
+			coll[i].placeAt(rand1, rand2);
+		}
+        
+    }
+
+	/*
 	let j=3;
 	let z=14;
 	let r = 0;
-
-	for(let i=0; i<coll.length; i++){
-		coll[i] = new MapObject(1);
 		if(i<51){
 			coll[i].placeAt(j, z);
 			if(z == 30){
@@ -420,21 +611,18 @@ window.onload = function(){
 		else if(i<80){
 			let rand1 = Math.floor(Math.random()*7 ) + 12;
 			let rand2 = Math.floor(Math.random()*7 ) + 3;
-
 			//console.log(rand1 + " " + rand2);
 			coll[i].placeAt(rand1, rand2);
 		}
 		else if(i<90){
 			let rand1 = Math.floor(Math.random()*7 ) + 23;
 			let rand2 = Math.floor(Math.random()*7 ) + 3;
-
 			//console.log(rand1 + " " + rand2);
 			coll[i].placeAt(rand1, rand2);
 		}
 		else if(i<120){
 			let rand1 = Math.floor(Math.random()*16 ) + 11;
 			let rand2 = Math.floor(Math.random()*12 ) + 17;
-
 			//console.log(rand1 + " " + rand2);
 			coll[i].placeAt(rand1, rand2);
 		}
@@ -446,11 +634,16 @@ window.onload = function(){
 			coll[i].placeAt(arr[r][k], arr[r][k+1]);
 			r++;
 		}
-	}
+	*/
 	
 	let keybox = new MapObject(2); 
 	keybox.placeAt(21, 22);
 };
+
+
+let isAttackable = 1;
+let attackId;
+let target = null;
 
 // 지도 그리기 & 프레임 속도(느려지면 재귀 호출)
 function drawGame(){
@@ -531,6 +724,105 @@ function drawGame(){
 		sprite[0].x, sprite[0].y, sprite[0].w, sprite[0].h,
 		viewport.offset[0] + player.position[0], viewport.offset[1] + player.position[1],
 		player.dimensions[0], player.dimensions[1]);
+
+		if(target == null) {
+			for(let i = 0; i < coll.length; i++) {
+				if(clickPosition[0] >= viewport.offset[0] + coll[i].getX()*tileW && clickPosition[0] <= viewport.offset[0] + coll[i].getX()*tileW + tileW && clickPosition[1] >= viewport.offset[1] + coll[i].getY()*tileH  && clickPosition[1] <= viewport.offset[1] + coll[i].getY()*tileH + tileH) {
+					console.log("object");
+					target = i;
+					mapTileData.map[toIndex(coll[i].x, coll[i].y)] = 0;
+					gameMap[toIndex(coll[i].x, coll[i].y)] = 4;
+					break;
+				}
+			}
+		}
+			
+	if(isMonsterShown == 1) {
+		for(let i=0; i<monsters.length; i++) {
+			monsters[i].move();
+			// clearTimeout(monsters[i].flying);
+			if(clickPosition[0] >= monsters[i].position[0] && clickPosition[0] <= monsters[i].position[0] + tileW && clickPosition[1] >= monsters[i].position[1]  && clickPosition[1] <= monsters[i].position[1] + tileH) {
+				console.log("kill");
+				monsters[i] = null;
+				monsters[i] = new Monster();
+			}
+			
+			
+		}
+		if(isAttackable == 1) {
+			for(let i=0; i<monsters.length; i++) {
+				if(Math.sqrt(Math.pow((monsters[i].position[0] + tileW/2)-(viewport.offset[0] + player.position[0] + 8), 2) + Math.pow((monsters[i].position[1] + tileH/2)-(viewport.offset[1] + player.position[1] + 8), 2)) < Math.sqrt(2000)) {
+					isAttackable = 0;
+					lives--;
+					console.log(lives);
+					for(let i=0; i<attackId; i++) {
+						clearTimeout(i);
+					}
+					attackId = setTimeout(() => {isAttackable = 1;}, 500);
+					break;
+				}
+				
+			}
+		}
+
+		
+	}
+	
+	/////////////////////
+
+	// draw darkness shading
+	
+	for(let i = 0; i<viewport.screen[0]; i+=12) {
+		for(let j = 0; j<viewport.screen[1]; j+=12) {
+			let opacity = Math.min((Math.sqrt(Math.pow((i)-(viewport.offset[0] + player.position[0] + 8), 2) + Math.pow((j)-(viewport.offset[1] + player.position[1] + 8), 2)) - 50) / 200, 1);
+			context.fillStyle = "rgba(0,0,0," + opacity + ")";
+			context.fillRect(i, j, 12, 12);
+		}
+	}
+	context.drawImage(tileset, 0, 5*16+1, 16, 16, weapon.position[0], weapon.position[1], weapon.size, weapon.size);
+	/*
+	if(isWeaponShown == 1) {
+		// context.drawImage(tileset, 0, 5*16+1, 16, 16, clickPosition[0]-tileW/2, clickPosition[1]-tileH/2, 70, 70);
+		context.drawImage(tileset, 0, 5*16+1, 16, 16, weapon.position[0], weapon.position[1], weapon.size, weapon.size);
+		clearTimeout(weaponId);
+		
+		weaponId = setTimeout( () => {isWeaponShown = 0; }, 300);
+	}
+	*/
+	
+
+	// printLives
+	for(let i=0; i<5; i++) {
+		if(i+1 <= lives) {
+			// 채워진 하트
+			context.drawImage(tileset, 3*16, 5*16+1, 16-1, 16, tileW*i+20, 20, tileW, tileH-1);
+		}
+		else {
+			// 비워진 하트
+			context.drawImage(tileset, 1*16, 5*16+1, 16, 16, tileW*i+20, 20, tileW, tileH);
+		}
+	}
+	if(lives <= 0) { gameover(); return; }
+
+
 		
 	requestAnimationFrame(drawGame);
+}
+
+// gameover
+function gameover() {
+	let gameoverText = document.getElementById("gameover");
+	let gameoverButton = document.getElementById("container");
+	gameoverText.style.display = "block";
+	gameoverButton.style.display = "flex";
+
+	context.fillStyle = "rgba(0,0,0,0.8)";
+	context.fillRect(0, 0, viewport.screen[0], viewport.screen[1]);
+	return;
+}
+
+let weaponSize = [30, 70];
+let weapon = {
+	position: [0, 0],
+	size : 30
 }
