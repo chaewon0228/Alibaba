@@ -53,9 +53,13 @@ let currentSecond = 0, frameCount = 0, framesLastSecond = 0, lastFrameTime = 0;
 
 let tileEvents = {
 	476: drawpath,
-	479: rideboat
+	479: rideboat,
+    872: touchbox
 };
 
+function touchbox(){
+    console.log("boxbox!");
+}
 function drawpath(){
 	gameMap[toIndex(33, 12)] = 5;
 	gameMap[toIndex(34, 12)] = 5;
@@ -232,7 +236,7 @@ function Character(){
 
 	this.direction	= directions.sleep;
 	this.sprites = {};
-	this.sprites[directions.up]		= [{x:96,y:64,w:16,h:16}];
+	this.sprites[directions.up]		= [{x:97,y:64,w:15,h:16}];
 	this.sprites[directions.right]	= [{x:16,y:64,w:16,h:16}];
 	this.sprites[directions.down]	= [{x:80,y:64,w:16,h:16}];
 	this.sprites[directions.left]	= [{x:48,y:48,w:16,h:16}];
@@ -390,25 +394,50 @@ window.onload = function(){
 	}
 	mapTileData.buildMapFromData(gameMap, mapW, mapH);
 
-	let arr = [
-		[4, 4], [5, 4], [6, 4], [4, 5], [4, 6], 
-		[5, 5], [5, 6], [6, 5], [6, 6], [4, 8],
-		[5, 8], [3, 10], [4, 10], [3, 11], [4, 11],
-		[8, 8], [8, 9], [8, 10], [8, 11], [3, 3], 
-		[6, 30], [11, 14], [12, 14], [12, 15], [12, 16],
-		[12, 17], [12, 18], [12, 19], [12, 20], [12, 21],
-		[12, 22], [12, 23], [12, 24], [12, 25], [12, 26],
-		[12, 27], [12, 28], [12, 29], [12, 30], [13, 30],
-		[14, 30], [15, 30], [16, 30],  [17, 30], [18, 30]
-	];
-	let coll = new Array(200);
-	
+    let arr = [
+        [4,4],[4,5],[4,6],[7,6],[7,7],
+        [7,8],[6,4],[5,10],[6,6],[4,8],
+        [5,8],[3,10],[4,10],[8,8],[8,9],
+        [8,10],[12,3],[13,4],[14,5],[15,6],
+        [16,7],[17,8],[18,9],[19,10],[15,3],
+        [16,4],[17,5],[18,6],[19,7],[23,3],
+        [25,3],[27,3],[29,3],[30,4],[30,6],
+        [30,8],[30,10],[28,10],[26,10],[24,10],
+        [4,14],[6,30],[21,21],[22,22],[20,22]
+    ];
+
+    let coll = new Array(160);
+
+    let row = 14, col = 3;
+    for(let i=0; i<coll.length; i++){
+		coll[i] = new MapObject(1);
+    }
+    for(let i=0; i<coll.length; i++){
+        if(i<45){
+            coll[i].placeAt(arr[i][0], arr[i][1]);
+        }
+        else if(i<96){
+            if(row == 31){
+                row = 14;
+                col += 2;
+            }
+            coll[i].placeAt(col, row);
+            row++;
+        }
+        else{
+            let rand1 = Math.floor(Math.random()*19 ) + 11;
+			let rand2 = Math.floor(Math.random()*16 ) + 14;
+
+			//console.log(rand1 + " " + rand2);
+			coll[i].placeAt(rand1, rand2);
+		}
+        
+    }
+
+	/*
 	let j=3;
 	let z=14;
 	let r = 0;
-
-	for(let i=0; i<coll.length; i++){
-		coll[i] = new MapObject(1);
 		if(i<51){
 			coll[i].placeAt(j, z);
 			if(z == 30){
@@ -446,7 +475,7 @@ window.onload = function(){
 			coll[i].placeAt(arr[r][k], arr[r][k+1]);
 			r++;
 		}
-	}
+	*/
 	
 	let keybox = new MapObject(2); 
 	keybox.placeAt(21, 22);
