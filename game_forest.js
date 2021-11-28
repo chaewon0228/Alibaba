@@ -155,7 +155,7 @@ function Character(){
 	this.sprites[directions.up]		= [{x:96,y:64,w:16,h:16}];
 	this.sprites[directions.right]	= [{x:16,y:64,w:16,h:16}];
 	this.sprites[directions.down]	= [{x:80,y:64,w:16,h:16}];
-	this.sprites[directions.left]	= [{x:48,y:48,w:16,h:16}];
+	this.sprites[directions.left]	= [{x:80,y:48,w:16,h:16}];
 	
 }
 Character.prototype.placeAt = function(x, y){
@@ -217,11 +217,44 @@ Character.prototype.canMoveDirection = function(d) {
 			return this.canMoveRight();
 	}
 };
-
-Character.prototype.moveLeft = function(t) { this.tileTo[0]-=1; this.timeMoved = t; this.direction = directions.left; };
-Character.prototype.moveRight = function(t) { this.tileTo[0]+=1; this.timeMoved = t; this.direction = directions.right; };
-Character.prototype.moveUp = function(t) { this.tileTo[1]-=1; this.timeMoved = t; this.direction = directions.up; };
-Character.prototype.moveDown = function(t) { this.tileTo[1]+=1; this.timeMoved = t; this.direction = directions.down; };
+//////////////////////////////////////
+Character.prototype.moveLeft = function(t) { 
+	this.tileTo[0]-=1; this.timeMoved = t; this.direction = directions.left; 
+	if(this.sprites[directions.left][0].x == 80) this.sprites[directions.left][0].x = 64;
+	else this.sprites[directions.left][0].x = 80;
+	if(weapon.size != 70) {
+		weapon.position[0] = viewport.offset[0] + player.position[0] + 9;
+		weapon.position[1] = viewport.offset[1] + player.position[1] + 6;
+	}
+};
+Character.prototype.moveRight = function(t) { 
+	this.tileTo[0]+=1; this.timeMoved = t; this.direction = directions.right; 
+	if(this.sprites[directions.right][0].x == 16) this.sprites[directions.right][0].x = 0;
+	else this.sprites[directions.right][0].x = 16;
+	if(weapon.size != 70) {
+		weapon.position[0] = viewport.offset[0] + player.position[0] - 6;
+		weapon.position[1] = viewport.offset[1] + player.position[1] + 6;
+	}
+};
+Character.prototype.moveUp = function(t) { 
+	this.tileTo[1]-=1; this.timeMoved = t; this.direction = directions.up; 
+	if(this.sprites[directions.up][0].x == 96) this.sprites[directions.up][0].x = 48;
+	else this.sprites[directions.up][0].x = 96;
+	if(weapon.size != 70) {
+		weapon.position[0] = viewport.offset[0] + player.position[0] + 3;
+		weapon.position[1] = viewport.offset[1] + player.position[1] + 9;
+	}
+};
+Character.prototype.moveDown = function(t) { 
+	this.tileTo[1]+=1; this.timeMoved = t; this.direction = directions.down; 
+	if(this.sprites[directions.down][0].x == 80) this.sprites[directions.down][0].x = 32;
+	else this.sprites[directions.down][0].x = 80;
+	if(weapon.size != 70) {
+		weapon.position[0] = viewport.offset[0] + player.position[0] + 3;
+		weapon.position[1] = viewport.offset[1] + player.position[1] - 6;
+	}
+};
+///////////////////////////////////////
 Character.prototype.moveDirection = function(d, t) {
 	switch(d){
 		case directions.up:
@@ -234,7 +267,7 @@ Character.prototype.moveDirection = function(d, t) {
 			return this.moveRight(t);
 	}
 };
-
+//////////////////////////
 let bat = new Image();
 bat.src = 'image/bat.png';
 
@@ -336,7 +369,9 @@ let clickPosition = [];
 let weaponId;
 
 window.onload = function(){
+	///////////////////////
 	let body = document.querySelector("body");
+	/////////////////////
 	canvas = document.getElementById('game');
 	context = document.getElementById('game').getContext("2d");
 	requestAnimationFrame(drawGame);
@@ -347,17 +382,39 @@ window.onload = function(){
 	});
 	window.addEventListener("keyup", function(e) {
 		if(e.keyCode>=37 && e.keyCode<=40) { keysDown[e.keyCode] = false; }
+		
 	});
-
+/////////////////////////////
 	body.addEventListener("click", function (e) {
+		for(let i=0; i<weaponId; i++) {
+			clearTimeout(i);
+		}
 		clickPosition[0] = e.screenX;
 		clickPosition[1] = e.screenY;
-
-		clearTimeout(weaponId);
-    	isWeaponShown = 1;
-    	weaponId = setTimeout( () => {isWeaponShown = 0; }, 300);
+		weapon.size = 70;
+		weapon.position[0] = clickPosition[0]-tileW/2;
+		weapon.position[1] = clickPosition[1]-tileW/2;
+		weaponId = setTimeout(() => {
+			weapon.size = 25;
+			if(player.direction == directions.up) {
+				weapon.position[0] = viewport.offset[0] + player.position[0] + 3;
+				weapon.position[1] = viewport.offset[1] + player.position[1] + 9;
+			}
+			else if(player.direction == directions.left) {
+				weapon.position[0] = viewport.offset[0] + player.position[0] + 9;
+				weapon.position[1] = viewport.offset[1] + player.position[1] + 6;
+			}
+			else if(player.direction == directions.right) {
+				weapon.position[0] = viewport.offset[0] + player.position[0] - 6;
+				weapon.position[1] = viewport.offset[1] + player.position[1] + 6;
+			}
+			else if(player.direction == directions.down) {
+				weapon.position[0] = viewport.offset[0] + player.position[0] + 3;
+				weapon.position[1] = viewport.offset[1] + player.position[1] - 6;
+			}
+		}, 500);
 	});
-
+///////////////////////////////
 	viewport.screen = [document.getElementById('game').width, document.getElementById('game').height];
 
 	tileset = new Image();
@@ -385,6 +442,7 @@ window.onload = function(){
 // 공격 지연을 위한 변수
 //////////////
 let isAttackable = 1;
+let attackId;
 ///////////////
 
 function drawGame() {
@@ -456,7 +514,10 @@ function drawGame() {
 					isAttackable = 0;
 					lives--;
 					console.log(lives);
-					setTimeout(() => {isAttackable = 1;}, 1000);
+					for(let i=0; i<attackId; i++) {
+						clearTimeout(i);
+					}
+					attackId = setTimeout(() => {isAttackable = 1;}, 1000);
 					break;
 				}
 				
@@ -465,13 +526,6 @@ function drawGame() {
 
 		
 	}
-
-	
-	
-	
-	
-
-	
 	
 	/////////////////////
 
@@ -484,9 +538,16 @@ function drawGame() {
 			context.fillRect(i, j, 12, 12);
 		}
 	}
+	context.drawImage(tileset, 0, 5*16+1, 16, 16, weapon.position[0], weapon.position[1], weapon.size, weapon.size);
+	/*
 	if(isWeaponShown == 1) {
-		context.drawImage(tileset, 0, 5*16+1, 16, 16, clickPosition[0]-tileW/2, clickPosition[1]-tileH/2, 70, 70);
+		// context.drawImage(tileset, 0, 5*16+1, 16, 16, clickPosition[0]-tileW/2, clickPosition[1]-tileH/2, 70, 70);
+		context.drawImage(tileset, 0, 5*16+1, 16, 16, weapon.position[0], weapon.position[1], weapon.size, weapon.size);
+		clearTimeout(weaponId);
+    	
+    	weaponId = setTimeout( () => {isWeaponShown = 0; }, 300);
 	}
+	*/
 	
 
 	// printLives
@@ -522,3 +583,7 @@ function gameover() {
 	return;
 }
 
+let weapon = {
+	position: [0, 0],
+	size : 25
+}
