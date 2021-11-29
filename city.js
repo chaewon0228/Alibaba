@@ -807,6 +807,7 @@ function drawGame(){
 		}
 	}
 	if(lives <= 0) { gameover(); return; }
+	if(getkey == true) text();
 
 
 		
@@ -837,6 +838,10 @@ function loadAudio(id) {
 		source.src = 'sound/break_plastic.wav';
 		playAudio();
 	}
+	else if(id == 4) {
+		source.src = 'sound/item.wav';
+		playAudio();
+	}
 }
 
 function playAudio() {
@@ -844,3 +849,8 @@ function playAudio() {
 	audio.loop = false;
 	audio.play();
 }
+function text() {
+	context.font = '55px arcade';
+	context.fillStyle = "white";
+	context.fillText('OBTAINED A KEY!   go to the boat.', 50, screen.height);
+  }

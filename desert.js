@@ -767,7 +767,7 @@ function drawGame() {
 			}
 		}
 		if(lives <= 0) { gameover(); return; }
-	
+		if(getkey == true) text();
 
 	requestAnimationFrame(drawGame);
 }
@@ -816,3 +816,8 @@ function playAudio() {
 	audio.play();
 }
 
+function text() {
+	context.font = '55px arcade';
+	context.fillStyle = "white";
+	context.fillText('OBTAINED A KEY!   go to the cave.', 50, screen.height);
+  }

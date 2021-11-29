@@ -414,7 +414,7 @@ function getFrame(sprite, duration, time, animated){
 }
 
 let bat = new Image();
-bat.src = 'image/fly.png';
+bat.src = 'image/butterfly.png';
 let clickPosition = [];
 let weaponId;
 
@@ -451,7 +451,7 @@ class Monster {
 						this.position[0]+=3;
 				}
 				this.distance--;
-				context.drawImage(bat, 30, this.isFly*110+30, 50, 50, this.position[0], this.position[1], tileW+5, tileH+5);
+				context.drawImage(bat, 0, this.isFly*46, 50, 46, this.position[0], this.position[1], tileW, tileH-4);
 			}
 			else {
 				this.distance = Math.floor(Math.random() * 150) + 30;
@@ -789,7 +789,7 @@ function drawGame(){
 			}
 		}
 		if(lives <= 0) { gameover(); return; }
-	
+		if(getkey == true) text();
 	
 
 	requestAnimationFrame(drawGame);
@@ -840,3 +840,9 @@ function playAudio() {
 	audio.loop = false;
 	audio.play();
 }
+
+function text() {
+	context.font = '55px arcade';
+	context.fillStyle = "white";
+	context.fillText('OBTAINED A KEY!   go to the boat.', 50, screen.height);
+  }
