@@ -505,6 +505,10 @@ window.onload = function(){
 
 	window.addEventListener("keydown", function(e) {
 		if(e.keyCode>=37 && e.keyCode<=40) { keysDown[e.keyCode] = true; }
+		if(isMusinPlay == 0) {
+			loadAudio(9);
+			isMusinPlay = 1;
+		}
 	});
 	window.addEventListener("keyup", function(e) {
 		if(e.keyCode>=37 && e.keyCode<=40) { keysDown[e.keyCode] = false; }
@@ -513,6 +517,7 @@ window.onload = function(){
 		let au = new Audio();
 		audio.push(au);
 	}
+	audio[9].src = 'sound/background.mp3';
 	audio[1].src = 'sound/bush.wav';
 	audio[0].src = 'sound/attack.ogg';
 	audio[4].src = 'sound/item.wav';
@@ -645,6 +650,7 @@ window.onload = function(){
 let isAttackable = 1;
 let attackId;
 let target = null;
+let isMusinPlay = 0;
 
 function drawGame(){
 	if(context==null) { return; }
@@ -830,12 +836,13 @@ function loadAudio(id) {
 function playAudio(id) {
 	audio[id].volume = 0.2;
 	audio[id].loop = false;
+	if(id == 9) audio.loop = true;
 	audio[id].play();
 }
 function text() {
 	context.font = '55px arcade';
 	context.fillStyle = "white";
-	context.fillText('OBTAINED A KEY!   go to the boat.', 50, screen.height);
+	context.fillText('OBTAINED A KEY!   go to the boat.', 50, screen.height- 30);
   }
 
   function replay() {
