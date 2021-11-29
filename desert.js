@@ -517,6 +517,8 @@ window.onload = function(){
 	audio[3].src = 'sound/break_rock.wav';
 	audio[0].src = 'sound/attack.ogg';
 	audio[4].src = 'sound/item.wav';
+	audio[2].src = 'sound/laugh.ogg';
+	audio[5].src = 'sound/gameover.wav';
 
 	body.addEventListener("click", function (e) {
 		for(let i=0; i<weaponId; i++) {
@@ -625,6 +627,7 @@ let isAttackable = 1;
 let attackId;
 let target = null;
 let isMusinPlay = 0;
+let shadow = 200;
 
 function drawGame() {
 	
@@ -733,6 +736,7 @@ function drawGame() {
 					if(Math.sqrt(Math.pow((monsters[i].position[0] + tileW/2)-(viewport.offset[0] + player.position[0] + 8), 2) + Math.pow((monsters[i].position[1] + tileH/2)-(viewport.offset[1] + player.position[1] + 8), 2)) < Math.sqrt(2000)) {
 						isAttackable = 0;
 						lives--;
+						loadAudio(2);
 						console.log(lives);
 						for(let i=0; i<attackId; i++) {
 							clearTimeout(i);
@@ -750,10 +754,10 @@ function drawGame() {
 		/////////////////////
 	
 		// draw darkness shading
-		
+		if(getkey == true) shadow *= 1.5;
 		for(let i = 0; i<viewport.screen[0]; i+=12) {
 			for(let j = 0; j<viewport.screen[1]; j+=12) {
-				let opacity = Math.min((Math.sqrt(Math.pow((i)-(viewport.offset[0] + player.position[0] + 8), 2) + Math.pow((j)-(viewport.offset[1] + player.position[1] + 8), 2)) - 50) / 200, 1);
+				let opacity = Math.min((Math.sqrt(Math.pow((i)-(viewport.offset[0] + player.position[0] + 8), 2) + Math.pow((j)-(viewport.offset[1] + player.position[1] + 8), 2)) - 50) / shadow, 1);
 				context.fillStyle = "rgba(0,0,0," + opacity + ")";
 				context.fillRect(i, j, 12, 12);
 			}
@@ -789,6 +793,7 @@ function drawGame() {
 
 // gameover
 function gameover() {
+	loadAudio(5);
 	let gameoverText = document.getElementById("gameover");
 	let gameoverButton = document.getElementById("container");
 	gameoverText.style.display = "block";
@@ -819,7 +824,7 @@ function playAudio(id) {
 
 function text() {
 	context.font = '55px arcade';
-	context.fillStyle = "white";
+	context.fillStyle = "black";
 	context.fillText('OBTAINED A KEY!   go to the cave.', 50, screen.height - 30);
   }
 
