@@ -273,10 +273,10 @@ function Character(){
 
 	this.direction	= directions.sleep;
 	this.sprites = {};
-	this.sprites[directions.up]		= [{x:96,y:64,w:16,h:16}];
+	this.sprites[directions.up]		= [{x:97,y:65,w:15,h:16}];
 	this.sprites[directions.right]	= [{x:16,y:64,w:16,h:16}];
-	this.sprites[directions.down]	= [{x:80,y:64,w:16,h:16}];
-	this.sprites[directions.left]	= [{x:48,y:48,w:16,h:16}];
+	this.sprites[directions.down]	= [{x:81,y:65,w:15,h:15}];
+	this.sprites[directions.left]	= [{x:48,y:49,w:16,h:15}];
 	
 	this.sprites[directions.sleep] = [{x:112,y:49,w:15,h:15}];
 
@@ -354,8 +354,8 @@ Character.prototype.canMoveDirection = function(d) {
 
 Character.prototype.moveLeft = function(t) { 
 	this.tileTo[0]-=1; this.timeMoved = t; this.direction = directions.left; 
-	if(this.sprites[directions.left][0].x == 65) this.sprites[directions.left][0].x = 81;
-	else this.sprites[directions.left][0].x = 65;
+	if(this.sprites[directions.left][0].x == 64) this.sprites[directions.left][0].x = 81;
+	else this.sprites[directions.left][0].x = 64;
 	if(weapon.size != weaponSize[1]) {
 		weapon.position[0] = viewport.offset[0] + player.position[0] + 20;
 		weapon.position[1] = viewport.offset[1] + player.position[1] + 10;
@@ -372,8 +372,8 @@ Character.prototype.moveRight = function(t) {
 };
 Character.prototype.moveUp = function(t) { 
 	this.tileTo[1]-=1; this.timeMoved = t; this.direction = directions.up; 
-	if(this.sprites[directions.up][0].x == 96) this.sprites[directions.up][0].x = 48;
-	else this.sprites[directions.up][0].x = 96;
+	if(this.sprites[directions.up][0].x == 97) this.sprites[directions.up][0].x = 48;
+	else this.sprites[directions.up][0].x = 97;
 	if(weapon.size != weaponSize[1]) {
 		weapon.position[0] = viewport.offset[0] + player.position[0] + 10;
 		weapon.position[1] = viewport.offset[1] + player.position[1] + 10;
@@ -522,6 +522,8 @@ window.onload = function(){
 	audio[0].src = 'sound/attack.ogg';
 	audio[4].src = 'sound/item.wav';
 	audio[3].src = 'sound/break_rock.wav';
+	audio[2].src = 'sound/laugh.ogg';
+	audio[5].src = 'sound/gameover.wav';
 
 	body.addEventListener("click", function (e) {
 		for(let i=0; i<weaponId; i++) {
@@ -651,6 +653,7 @@ let isAttackable = 1;
 let attackId;
 let target = null;
 let isMusinPlay = 0;
+let shadow = 200;
 
 function drawGame(){
 	if(context==null) { return; }
@@ -755,6 +758,7 @@ function drawGame(){
 					if(Math.sqrt(Math.pow((monsters[i].position[0] + tileW/2)-(viewport.offset[0] + player.position[0] + 8), 2) + Math.pow((monsters[i].position[1] + tileH/2)-(viewport.offset[1] + player.position[1] + 8), 2)) < Math.sqrt(2000)) {
 						isAttackable = 0;
 						lives--;
+						loadAudio(2);
 						console.log(lives);
 						for(let i=0; i<attackId; i++) {
 							clearTimeout(i);
@@ -772,10 +776,10 @@ function drawGame(){
 		/////////////////////
 	
 		// draw darkness shading
-		
+		if(getkey == true) shadow *= 1.5;
 		for(let i = 0; i<viewport.screen[0]; i+=12) {
 			for(let j = 0; j<viewport.screen[1]; j+=12) {
-				let opacity = Math.min((Math.sqrt(Math.pow((i)-(viewport.offset[0] + player.position[0] + 8), 2) + Math.pow((j)-(viewport.offset[1] + player.position[1] + 8), 2)) - 50) / 200, 1);
+				let opacity = Math.min((Math.sqrt(Math.pow((i)-(viewport.offset[0] + player.position[0] + 8), 2) + Math.pow((j)-(viewport.offset[1] + player.position[1] + 8), 2)) - 50) / shadow, 1);
 				context.fillStyle = "rgba(0,0,0," + opacity + ")";
 				context.fillRect(i, j, 12, 12);
 			}
@@ -813,6 +817,7 @@ function drawGame(){
 
 // gameover
 function gameover() {
+	loadAudio(5);
 	let gameoverText = document.getElementById("gameover");
 	let gameoverButton = document.getElementById("container");
 	gameoverText.style.display = "block";
@@ -841,7 +846,7 @@ function playAudio(id) {
 }
 function text() {
 	context.font = '55px arcade';
-	context.fillStyle = "white";
+	context.fillStyle = "black";
 	context.fillText('OBTAINED A KEY!   go to the boat.', 50, screen.height- 30);
   }
 
