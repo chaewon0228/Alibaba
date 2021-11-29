@@ -55,6 +55,7 @@ let tileW = 50, tileH = 50;
 let mapW = 45, mapH = 40;
 let getkey = false;
 let currentSecond = 0, frameCount = 0, framesLastSecond = 0, lastFrameTime = 0;
+let audio = [];
 
 let tileEvents = {
 	984 : drawpath,
@@ -72,7 +73,7 @@ function touchbox(){
 	// 박스 닿았을 때 처리
 	console.log("box");
 	getkey = true;
-	playAudio(4);
+	loadAudio(4);
 
 }
 function rideboat(){
@@ -501,7 +502,6 @@ window.onload = function(){
 	requestAnimationFrame(drawGame);
 	context.font = "bold 10pt sans-serif";
 	let body = document.querySelector("body");
-	audio = document.querySelector('#audio');
 
 	window.addEventListener("keydown", function(e) {
 		if(e.keyCode>=37 && e.keyCode<=40) { keysDown[e.keyCode] = true; }
@@ -509,6 +509,14 @@ window.onload = function(){
 	window.addEventListener("keyup", function(e) {
 		if(e.keyCode>=37 && e.keyCode<=40) { keysDown[e.keyCode] = false; }
 	});
+	for(let i = 0; i<10; i++) {
+		let au = new Audio();
+		audio.push(au);
+	}
+	audio[1].src = 'sound/bush.wav';
+	audio[0].src = 'sound/attack.ogg';
+	audio[4].src = 'sound/item.wav';
+	audio[3].src = 'sound/break_rock.wav';
 
 	body.addEventListener("click", function (e) {
 		for(let i=0; i<weaponId; i++) {
@@ -728,6 +736,7 @@ function drawGame(){
 				monsters[i].move();
 				// clearTimeout(monsters[i].flying);
 				if(clickPosition[0] >= monsters[i].position[0] && clickPosition[0] <= monsters[i].position[0] + tileW && clickPosition[1] >= monsters[i].position[1]  && clickPosition[1] <= monsters[i].position[1] + tileH) {
+					loadAudio(0);
 					console.log("kill");
 					monsters[i] = null;
 					monsters[i] = new Monster();
@@ -814,35 +823,24 @@ let weapon = {
 	size : 30
 }
 function loadAudio(id) {
-	let source = document.querySelector("#audioSource");
-	audio.load();
-	switch(id) 
-	{
-		case 1:
-		source.src = 'sound/break_bush.wav';
-		playAudio();
-		break;
-		
-		case 3:
-		source.src = 'sound/break_rock.wav';
-		playAudio();
-		break;
-		case 4:
-		source.src = 'sound/item.wav';
-		playAudio();
-		break;
-	}
-	
+	audio[id].load();
+	playAudio(id);
 }
 
-function playAudio() {
-	audio.volume = 0.2;
-	audio.loop = false;
-	audio.play();
+function playAudio(id) {
+	audio[id].volume = 0.2;
+	audio[id].loop = false;
+	audio[id].play();
 }
-
 function text() {
 	context.font = '55px arcade';
 	context.fillStyle = "white";
 	context.fillText('OBTAINED A KEY!   go to the boat.', 50, screen.height);
   }
+
+  function replay() {
+	location.href = "game_city.html";
+}
+function back() {
+	location.href = "main.html";
+}

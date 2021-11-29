@@ -43,7 +43,7 @@ let gameMap = [
 ];
 
 let mapTileData = new TileMap();
-let audio;
+let audio = [];
 let source;
 
 let getkey = false;
@@ -63,6 +63,7 @@ let tileEvents = {
 function touchbox(){
     console.log("boxbox!");
 	getkey = true;
+	loadAudio(4);
 
 }
 function drawpath(){
@@ -495,7 +496,13 @@ window.onload = function(){
 	requestAnimationFrame(drawGame);
 	context.font = "bold 10pt sans-serif";
 	let body = document.querySelector("body");
-	audio = document.querySelector('#audio');
+	for(let i = 0; i<10; i++) {
+		let au = new Audio();
+		audio.push(au);
+	}
+	audio[1].src = 'sound/break_plastic.wav';
+	audio[0].src = 'sound/attack.ogg';
+	audio[4].src = 'sound/item.wav';
 	window.addEventListener("keydown", function(e) {
 		if(e.keyCode>=37 && e.keyCode<=40) { keysDown[e.keyCode] = true; }
 	});
@@ -746,6 +753,7 @@ function drawGame(){
 			monsters[i].move();
 			// clearTimeout(monsters[i].flying);
 			if(clickPosition[0] >= monsters[i].position[0] && clickPosition[0] <= monsters[i].position[0] + tileW && clickPosition[1] >= monsters[i].position[1]  && clickPosition[1] <= monsters[i].position[1] + tileH) {
+				loadAudio(0);
 				console.log("kill");
 				monsters[i] = null;
 				monsters[i] = new Monster();
@@ -832,25 +840,24 @@ let weapon = {
 	size : 30
 }
 function loadAudio(id) {
-	let source = document.querySelector("#audioSource");
-	audio.load();
-	if(id == 1) {
-		source.src = 'sound/break_plastic.wav';
-		playAudio();
-	}
-	else if(id == 4) {
-		source.src = 'sound/item.wav';
-		playAudio();
-	}
+	audio[id].load();
+	playAudio(id);
 }
 
-function playAudio() {
-	audio.volume = 0.2;
-	audio.loop = false;
-	audio.play();
+function playAudio(id) {
+	audio[id].volume = 0.2;
+	audio[id].loop = false;
+	audio[id].play();
 }
 function text() {
 	context.font = '55px arcade';
 	context.fillStyle = "white";
 	context.fillText('OBTAINED A KEY!   go to the boat.', 50, screen.height);
+  }
+
+  function replay() {
+	  location.href = "game_city.html";
+  }
+  function back() {
+	  location.href = "main.html";
   }
