@@ -47,16 +47,106 @@ let gameMap = [
 	9, 9, 9, 9, 9, 9, 9, 1, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 3, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9
 ];
 
+let mapTileData = new TileMap();
+
 // 타일 크기
 let tileW = 50, tileH = 50;
 // 맵 크기
 let mapW = 45, mapH = 40;
+let getkey = false;
 let currentSecond = 0, frameCount = 0, framesLastSecond = 0, lastFrameTime = 0;
+
+let tileEvents = {
+	984 : drawpath,
+	1288 : touchbox,
+	987 : rideboat
+};
+
+function drawpath(){
+	gameMap[toIndex(40, 21)] = 8;
+	gameMap[toIndex(41, 21)] = 8;
+	gameMap[toIndex(42, 21)] = 8;
+	gameMap[toIndex(43, 21)] = 8;
+}
+function touchbox(){
+	// 박스 닿았을 때 처리
+	console.log("box");
+	getkey = true;
+	playAudio(4);
+
+}
+function rideboat(){
+	console.log("boatboat!!");
+
+	if(getkey == true){
+		// 키가 있을 때 게임 종료
+		location.href = "end_forest.html";
+	}
+}
+
+let lives = 3;
 
 let tileset = null;
 let tilesetURL = "tile_forest.png";
 let tilesetLoaded = false;
 
+let objectCollision = {
+	none: 0,
+	solid: 1
+};
+
+let objectTypes = {
+	1: {
+		name: "bush",
+		sprite: [{x:0,y:49,w:15,h:14}],
+		offset: [0,0],
+		collision : objectCollision.solid,
+		zIndex : 1
+	},
+	2: {
+		name: "broken", // 깨진 이미지
+		sprite: [{x:32,y:32,w:16,h:16}],
+		offset: [0,0],
+		collision : objectCollision.none,
+		zIndex : 1
+	},
+	3: {
+		name: "stone",
+		sprite: [{x:16,y:49,w:16,h:15}],
+		offset: [0,0],
+		collision : objectCollision.solid,
+		zIndex : 1
+	},
+	4: {
+		name: "key",
+		sprite: [{x:80,y:81,w:16,h:15}],
+		offset: [0,0],
+		collision : objectCollision.solid,
+		zIndex : 1
+	}
+};
+
+function MapObject(nt){
+	this.x = 0;
+	this.y = 0;
+	this.type = nt;
+}
+MapObject.prototype.placeAt = function(nx, ny){
+	if(mapTileData.map[toIndex(this.x, this.y)].object==this){
+		mapTileData.map[toIndex(this.x, this.y)].object = null;
+	}
+	
+	this.x = nx;
+	this.y = ny;
+	
+	mapTileData.map[toIndex(nx, ny)].object = this;
+};
+MapObject.prototype.getX = function() {
+	return this.x;
+}
+MapObject.prototype.getY = function() {
+	return this.y;
+}
 
 // 바닥 종류
 let floorTypes = {
@@ -72,7 +162,7 @@ let tileTypes = {
 	0: { colour:"#5bbd24", floor:floorTypes.grass, sprite:[{x:50,y:16,w:16,h:15}]},  // 왼위모서리
 	1: { colour:"#5bbd24", floor:floorTypes.grass, sprite:[{x:48,y:32,w:16,h:15}]},  // 왼아모서리
 	2: { colour:"#5bbd24", floor:floorTypes.grass, sprite:[{x:113,y:16,w:16,h:15}]}, // 오위모서리
-	3: { colour:"#5bbd24", floor:floorTypes.grass, sprite:[{x:96,y:17,w:15,h:15}]},  // 오아모서리
+	3: { colour:"#5bbd24", floor:floorTypes.grass, sprite:[{x:96,y:17,w:15,h:14}]},  // 오아모서리
 
 	4: { colour:"#5bbd24", floor:floorTypes.grass, sprite:[{x:81,y:18,w:11,h:16}]},   // 잔디
 	5: { colour:"#5bbd24", floor:floorTypes.sand, sprite:[{x:17,y:33,w:14,h:14}]},    // 모래
@@ -90,7 +180,39 @@ let tileTypes = {
 	13: { colour:"#e8bd7a", floor:floorTypes.grass, sprite:[{x:64,y:32,w:16,h:15}]},  // 아
 
 	14: { colour:"#e8bd7a", floor:floorTypes.grass, sprite:[{x:0,y:17,w:16,h:14}]},    // 섬
-	15: { colour:"#e8bd7a", floor:floorTypes.solid, sprite:[{x:33,y:33,w:16,h:14}]}    // 배
+	15: { colour:"#e8bd7a", floor:floorTypes.solid, sprite:[{x:33,y:33,w:15,h:14}]},    // 배
+	16: { colour:"#e8bd7a", floor:floorTypes.grass, sprite:[{x:96,y:33,w:15,h:14}]}    // 배
+};
+
+function Tile(tx, ty, tt){
+	this.x = tx;
+	this.y = ty;
+	this.type = tt;
+	this.eventEnter	= null;
+	this.object = null;
+}
+
+function TileMap(){
+	this.map = [];
+	this.w = 0;
+	this.h = 0;
+	this.levels	= 4;
+}
+TileMap.prototype.buildMapFromData = function(d, w, h){
+	this.w = w;
+	this.h = h;
+	
+	if(d.length!=(w*h)) { return false; }
+	
+	this.map.length	= 0;
+	
+	for(let y = 0; y < h; y++){
+		for(let x = 0; x < w; x++){
+			this.map.push( new Tile(x, y, d[((y*w)+x)]) );
+		}
+	}
+	
+	return true;
 };
 
 // 방향
@@ -98,7 +220,8 @@ let directions = {
 	up: 0,
 	right: 1,
 	down: 2,
-	left: 3
+	left: 3,
+	sleep: 4
 };
 // 방향키 값
 let keysDown = {
@@ -147,13 +270,15 @@ function Character(){
 	this.delayMove[floorTypes.grass]= 350;
 	this.delayMove[floorTypes.sand]= 1100;
 
-	this.direction	= directions.up;
+	this.direction	= directions.sleep;
 	this.sprites = {};
 	this.sprites[directions.up]		= [{x:96,y:64,w:16,h:16}];
 	this.sprites[directions.right]	= [{x:16,y:64,w:16,h:16}];
 	this.sprites[directions.down]	= [{x:80,y:64,w:16,h:16}];
 	this.sprites[directions.left]	= [{x:48,y:48,w:16,h:16}];
 	
+	this.sprites[directions.sleep] = [{x:112,y:49,w:15,h:15}];
+
 }
 Character.prototype.placeAt = function(x, y){
 	this.tileFrom	= [x,y];
@@ -169,6 +294,10 @@ Character.prototype.processMovement = function(t){
 
 	if((t-this.timeMoved)>=moveSpeed){
 		this.placeAt(this.tileTo[0], this.tileTo[1]);
+
+		if(typeof tileEvents[toIndex(this.tileTo[0], this.tileTo[1])] != 'undefined'){
+			tileEvents[toIndex(this.tileTo[0], this.tileTo[1])](this);
+		}
 
 		let tileFloor = tileTypes[gameMap[toIndex(this.tileFrom[0], this.tileFrom[1])]].floor;
 
@@ -196,6 +325,13 @@ Character.prototype.processMovement = function(t){
 Character.prototype.canMoveTo = function(x, y){
 	if(x < 0 || x >= mapW || y < 0 || y >= mapH) { return false; }
 	if(typeof this.delayMove[tileTypes[gameMap[toIndex(x,y)]].floor]=='undefined') { return false; }
+	if(mapTileData.map[toIndex(x,y)].object!=null){
+		let o = mapTileData.map[toIndex(x,y)].object;
+		if(objectTypes[o.type].collision==objectCollision.solid){
+			return false;
+		}
+	}
+
 	return true;
 };
 Character.prototype.canMoveUp = function() { return this.canMoveTo(this.tileFrom[0], this.tileFrom[1]-1); };
@@ -215,10 +351,42 @@ Character.prototype.canMoveDirection = function(d) {
 	}
 };
 
-Character.prototype.moveLeft = function(t) { this.tileTo[0]-=1; this.timeMoved = t; this.direction = directions.left; };
-Character.prototype.moveRight = function(t) { this.tileTo[0]+=1; this.timeMoved = t; this.direction = directions.right; };
-Character.prototype.moveUp = function(t) { this.tileTo[1]-=1; this.timeMoved = t; this.direction = directions.up; };
-Character.prototype.moveDown = function(t) { this.tileTo[1]+=1; this.timeMoved = t; this.direction = directions.down; };
+Character.prototype.moveLeft = function(t) { 
+	this.tileTo[0]-=1; this.timeMoved = t; this.direction = directions.left; 
+	if(this.sprites[directions.left][0].x == 65) this.sprites[directions.left][0].x = 81;
+	else this.sprites[directions.left][0].x = 65;
+	if(weapon.size != weaponSize[1]) {
+		weapon.position[0] = viewport.offset[0] + player.position[0] + 20;
+		weapon.position[1] = viewport.offset[1] + player.position[1] + 10;
+	}
+};
+Character.prototype.moveRight = function(t) { 
+	this.tileTo[0]+=1; this.timeMoved = t; this.direction = directions.right; 
+	if(this.sprites[directions.right][0].x == 16) this.sprites[directions.right][0].x = 0;
+	else this.sprites[directions.right][0].x = 16;
+	if(weapon.size != weaponSize[1]) {
+		weapon.position[0] = viewport.offset[0] + player.position[0] - 5;
+		weapon.position[1] = viewport.offset[1] + player.position[1] + 10;
+	}
+};
+Character.prototype.moveUp = function(t) { 
+	this.tileTo[1]-=1; this.timeMoved = t; this.direction = directions.up; 
+	if(this.sprites[directions.up][0].x == 96) this.sprites[directions.up][0].x = 48;
+	else this.sprites[directions.up][0].x = 96;
+	if(weapon.size != weaponSize[1]) {
+		weapon.position[0] = viewport.offset[0] + player.position[0] + 10;
+		weapon.position[1] = viewport.offset[1] + player.position[1] + 10;
+	}
+};
+Character.prototype.moveDown = function(t) { 
+	this.tileTo[1]+=1; this.timeMoved = t; this.direction = directions.down; 
+	if(this.sprites[directions.down][0].x == 81) this.sprites[directions.down][0].x = 32;
+	else this.sprites[directions.down][0].x = 81;
+	if(weapon.size != weaponSize[1]) {
+		weapon.position[0] = viewport.offset[0] + player.position[0] + 10;
+		weapon.position[1] = viewport.offset[1] + player.position[1] - 10;
+	}
+};
 Character.prototype.moveDirection = function(d, t) {
 	switch(d){
 		case directions.up:
@@ -245,16 +413,134 @@ function getFrame(sprite, duration, time, animated){
 	}
 }
 
+let bat = new Image();
+bat.src = 'image/fly.png';
+let clickPosition = [];
+let weaponId;
+
+class Monster {
+	constructor() {
+		this.isFly = 0;
+		this.delayMove	= {};
+		this.delayMove[floorTypes.path]	= 180;
+		this.delayMove[floorTypes.grass]= 350;
+		this.delayMove[floorTypes.sand]= 1100;
+		this.position = [Math.floor(Math.random() * screen.width), Math.floor(Math.random() * screen.height)];
+		this.direction = directions.up;
+		this.distance = Math.floor(Math.random() * 150) + 30;
+		this.move = function() {
+			if(this.canMoveX()==false) {
+				this.direction = directions.up;
+			}
+			if(this.canMoveY()==false) {
+				this.direction = directions.right;
+			}
+			// if(typeof this.delayMove[tileTypes[gameMap[toIndex(this.position[0]/50,this.position[1])/50]].floor]=='undefined') { this.distance = Math.floor(Math.random() * 150) + 30; }
+			if(this.distance >= 0) {
+				switch(this.direction) {
+					case directions.up :
+						this.position[1]-=3;
+						break;
+					case directions.down:
+						this.position[1]+=3;
+						break;
+					case directions.left:
+						this.position[0]-=3;
+						break;
+					case directions.right:
+						this.position[0]+=3;
+				}
+				this.distance--;
+				context.drawImage(bat, 30, this.isFly*110+30, 50, 50, this.position[0], this.position[1], tileW+5, tileH+5);
+			}
+			else {
+				this.distance = Math.floor(Math.random() * 150) + 30;
+				let d = Math.floor(Math.random() * 4);
+				switch (d) {
+					case 0 : this.direction = directions.up; break;
+					case 1 : this.direction = directions.down; break;
+					case 2: this.direction = directions.left; break;
+					case 3: this.direction = directions.right; break;
+				}
+				context.drawImage(bat, 0, this.isFly*50, 50, 50, this.position[0], this.position[1], tileW+5, tileH+5);
+			}
+			//clearTimeout(this.flying);
+			this.flying = setTimeout(() => { 
+				if(this.isFly == 0) this.isFly = 1;
+				else this.isFly = 0;
+			}, 1000);
+			
+		};
+		this.canMoveX = function () {
+			if((this.position[0] < 0 && this.direction == directions.left) || (this.position[0] > screen.width && this.direction == directions.right)) return false;
+			return true;
+		}
+		this.canMoveY = function () {
+			if((this.position[1] < 0 && this.direction == directions.up) || (this.position[1] > screen.height && this.direction == directions.down)) return false;
+			return true;
+		}
+	}
+}
+
+let monsters = [];
+let monsterCnt = 20;
+let isMonsterShown = 0;
+
+setTimeout(() => {
+	for(let i = 0; i<monsterCnt; i++) {
+		monsters[i] = new Monster();
+	}
+	isMonsterShown = 1;
+}, 1500);
+
+let isWeaponShown;
+let coll;
+
 window.onload = function(){
 	context = document.getElementById('game').getContext("2d");
 	requestAnimationFrame(drawGame);
 	context.font = "bold 10pt sans-serif";
+	let body = document.querySelector("body");
+	audio = document.querySelector('#audio');
 
 	window.addEventListener("keydown", function(e) {
 		if(e.keyCode>=37 && e.keyCode<=40) { keysDown[e.keyCode] = true; }
 	});
 	window.addEventListener("keyup", function(e) {
 		if(e.keyCode>=37 && e.keyCode<=40) { keysDown[e.keyCode] = false; }
+	});
+
+	body.addEventListener("click", function (e) {
+		for(let i=0; i<weaponId; i++) {
+			clearTimeout(i);
+		}
+		clickPosition[0] = e.screenX;
+		clickPosition[1] = e.screenY;
+		weapon.size = weaponSize[1];
+		weapon.position[0] = clickPosition[0]-tileW/2;
+		weapon.position[1] = clickPosition[1]-tileW/2;
+		weaponId = setTimeout(() => {
+			weapon.size = weaponSize[0];
+			if(player.direction == directions.up) {
+				weapon.position[0] = viewport.offset[0] + player.position[0] + 10;
+				weapon.position[1] = viewport.offset[1] + player.position[1] + 10;
+			}
+			else if(player.direction == directions.left) {
+				weapon.position[0] = viewport.offset[0] + player.position[0] + 20;
+				weapon.position[1] = viewport.offset[1] + player.position[1] + 10;
+			}
+			else if(player.direction == directions.right) {
+				weapon.position[0] = viewport.offset[0] + player.position[0] - 5;
+				weapon.position[1] = viewport.offset[1] + player.position[1] + 10;
+			}
+			else if(player.direction == directions.down) {
+				weapon.position[0] = viewport.offset[0] + player.position[0] + 10;
+				weapon.position[1] = viewport.offset[1] + player.position[1] - 10;
+			}
+			clickPosition[0] = 0;
+			clickPosition[1] = 0;
+			target = null;
+		}, 500);
 	});
 
 	viewport.screen = [document.getElementById('game').width, document.getElementById('game').height];
@@ -278,7 +564,79 @@ window.onload = function(){
 			tileTypes[x]['spriteDuration'] = t;
 		}
 	}
+	mapTileData.buildMapFromData(gameMap, mapW, mapH);
+
+	let arr = [
+		[13, 9], [12, 9], [12, 10], [12, 11], [11, 10],
+		[8, 13], [7, 15], [6, 15], [7, 16], [14, 15],
+		[14, 16] , [13, 17], [4, 31], [4, 34], [3, 32],
+		[8, 33], [7, 34], [34, 8], [34, 9], [33, 9],
+		[35, 10], [37, 13], [35, 14], [30, 15], [31, 16], 
+		[30, 25], [31, 26], [31, 27], [30, 27], [29, 27],
+		[28, 27], [30, 28], [30, 29], [29, 29], [28, 29],
+		[27, 30], [31, 30], [31, 31], [32, 30], [32, 31]
+	];
+	coll = new Array(200);
+
+	
+	for(let i = 0; i < coll.length; i++){
+		if(i <= 185){
+			coll[i] = new MapObject(1);	
+		}
+		else{
+			coll[i] = new MapObject(3);
+		}
+	}
+
+	for(let i=0; i<coll.length; i++){
+		if(i < 40){
+			coll[i].placeAt(arr[i][0], arr[i][1]);
+		}
+		else if(i < 55){
+			let rand1 = Math.floor(Math.random()*4 ) + 17;
+			let rand2 = Math.floor(Math.random()*4 ) + 6;
+	
+			//console.log(rand1 + " " + rand2);
+			coll[i].placeAt(rand1, rand2);
+		}
+		else if(i < 70){
+			let rand1 = Math.floor(Math.random()*5 ) + 25;
+			let rand2 = Math.floor(Math.random()*5 ) + 19;
+	
+			//console.log(rand1 + " " + rand2);
+			coll[i].placeAt(rand1, rand2);
+		}
+		else if(i < 90){
+			let rand1 = Math.floor(Math.random()*5 ) + 8;
+			let rand2 = Math.floor(Math.random()*5 ) + 22;
+	
+			//console.log(rand1 + " " + rand2);
+			coll[i].placeAt(rand1, rand2);
+		}
+		else if(i < 160){
+			let rand1 = Math.floor(Math.random()*9 ) + 17;
+			let rand2 = Math.floor(Math.random()*9 ) + 26;
+	
+			//console.log(rand1 + " " + rand2);
+			coll[i].placeAt(rand1, rand2);
+		}
+		else{
+			let free1 = Math.floor(Math.random()*34 ) + 5;
+			let free2 = Math.floor(Math.random()*35 ) + 4;
+	
+			//console.log(free1 + " " + free2);
+			coll[i].placeAt(free1, free2);
+		}
+	}
+	
+	let keybox = new MapObject(4); 
+	keybox.placeAt(29, 28);
+
 };
+
+let isAttackable = 1;
+let attackId;
+let target = null;
 
 function drawGame(){
 	if(context==null) { return; }
@@ -307,14 +665,43 @@ function drawGame(){
 	context.fillStyle = "#0080ff";
 	context.fillRect(0, 0, viewport.screen[0], viewport.screen[1]);
 
-	for(let y = viewport.startTile[1]; y <= viewport.endTile[1]; ++y){
-		for(let x = viewport.startTile[0]; x <= viewport.endTile[0]; ++x){
-			let tile = tileTypes[gameMap[toIndex(x,y)]];
-			let sprite = getFrame(tile.sprite, tile.spriteDuration, currentFrameTime, tile.animated);
-			context.drawImage(tileset,
-				sprite.x, sprite.y, sprite.w, sprite.h,
-				viewport.offset[0] + (x*tileW), viewport.offset[1] + (y*tileH), tileW, tileH);
+	for(let z = 0; z< mapTileData.levels; z++){
+		for(let y = viewport.startTile[1]; y <= viewport.endTile[1]; ++y){
+			for(let x = viewport.startTile[0]; x <= viewport.endTile[0]; ++x){
+				if(z==0){
+					let tile = tileTypes[gameMap[toIndex(x,y)]];
+					let sprite = getFrame(tile.sprite, tile.spriteDuration,
+						currentFrameTime, tile.animated);
+					context.drawImage(tileset,
+						sprite.x, sprite.y, sprite.w, sprite.h,
+						viewport.offset[0] + (x*tileW), viewport.offset[1] + (y*tileH), tileW, tileH);
+				
+				}
+				let o = mapTileData.map[toIndex(x,y)].object;
+				if(o!=null && objectTypes[o.type].zIndex==z){
+					let ot = objectTypes[o.type];
+					
+					context.drawImage(tileset,
+						ot.sprite[0].x, ot.sprite[0].y,
+						ot.sprite[0].w, ot.sprite[0].h,
+						viewport.offset[0] + (x*tileW) + ot.offset[0],
+						viewport.offset[1] + (y*tileH) + ot.offset[1],
+						50, 50);
+				}
+				
+				
+			}
 		}
+		if(z==1){
+			let sprite = player.sprites[player.direction];
+			context.drawImage(tileset,
+				sprite[0].x, sprite[0].y,
+				sprite[0].w, sprite[0].h,
+				viewport.offset[0] + player.position[0],
+				viewport.offset[1] + player.position[1],
+				player.dimensions[0], player.dimensions[1]);
+		}
+		
 	}
 
 	let sprite = player.sprites[player.direction];
@@ -322,6 +709,134 @@ function drawGame(){
 		sprite[0].x, sprite[0].y, sprite[0].w, sprite[0].h,
 		viewport.offset[0] + player.position[0], viewport.offset[1] + player.position[1],
 		player.dimensions[0], player.dimensions[1]);
-	lastFrameTime = currentFrameTime;
+
+		if(target == null) {
+			for(let i = 0; i < coll.length; i++) {
+				if(clickPosition[0] >= viewport.offset[0] + coll[i].getX()*tileW && clickPosition[0] <= viewport.offset[0] + coll[i].getX()*tileW + tileW && clickPosition[1] >= viewport.offset[1] + coll[i].getY()*tileH  && clickPosition[1] <= viewport.offset[1] + coll[i].getY()*tileH + tileH) {
+					console.log("object");
+					loadAudio(coll[i].type);
+					target = i;
+					mapTileData.map[toIndex(coll[i].x, coll[i].y)] = 0;
+					gameMap[toIndex(coll[i].x, coll[i].y)] = 16;
+					break;
+				}
+			}
+		}
+
+		if(isMonsterShown == 1) {
+			for(let i=0; i<monsters.length; i++) {
+				monsters[i].move();
+				// clearTimeout(monsters[i].flying);
+				if(clickPosition[0] >= monsters[i].position[0] && clickPosition[0] <= monsters[i].position[0] + tileW && clickPosition[1] >= monsters[i].position[1]  && clickPosition[1] <= monsters[i].position[1] + tileH) {
+					console.log("kill");
+					monsters[i] = null;
+					monsters[i] = new Monster();
+				}
+				
+				
+			}
+			if(isAttackable == 1) {
+				for(let i=0; i<monsters.length; i++) {
+					if(Math.sqrt(Math.pow((monsters[i].position[0] + tileW/2)-(viewport.offset[0] + player.position[0] + 8), 2) + Math.pow((monsters[i].position[1] + tileH/2)-(viewport.offset[1] + player.position[1] + 8), 2)) < Math.sqrt(2000)) {
+						isAttackable = 0;
+						lives--;
+						console.log(lives);
+						for(let i=0; i<attackId; i++) {
+							clearTimeout(i);
+						}
+						attackId = setTimeout(() => {isAttackable = 1;}, 500);
+						break;
+					}
+					
+				}
+			}
+	
+			
+		}
+		
+		/////////////////////
+	
+		// draw darkness shading
+		
+		for(let i = 0; i<viewport.screen[0]; i+=12) {
+			for(let j = 0; j<viewport.screen[1]; j+=12) {
+				let opacity = Math.min((Math.sqrt(Math.pow((i)-(viewport.offset[0] + player.position[0] + 8), 2) + Math.pow((j)-(viewport.offset[1] + player.position[1] + 8), 2)) - 50) / 200, 1);
+				context.fillStyle = "rgba(0,0,0," + opacity + ")";
+				context.fillRect(i, j, 12, 12);
+			}
+		}
+		context.drawImage(tileset, 0, 5*16+1, 16, 16, weapon.position[0], weapon.position[1], weapon.size, weapon.size);
+		/*
+		if(isWeaponShown == 1) {
+			// context.drawImage(tileset, 0, 5*16+1, 16, 16, clickPosition[0]-tileW/2, clickPosition[1]-tileH/2, 70, 70);
+			context.drawImage(tileset, 0, 5*16+1, 16, 16, weapon.position[0], weapon.position[1], weapon.size, weapon.size);
+			clearTimeout(weaponId);
+			
+			weaponId = setTimeout( () => {isWeaponShown = 0; }, 300);
+		}
+		*/
+		
+	
+		// printLives
+		for(let i=0; i<3; i++) {
+			if(i+1 <= lives) {
+				// 채워진 하트
+				context.drawImage(tileset, 3*16, 5*16+1, 16-1, 16, tileW*i+20, 20, tileW, tileH-1);
+			}
+			else {
+				// 비워진 하트
+				context.drawImage(tileset, 1*16, 5*16+1, 16, 16, tileW*i+20, 20, tileW, tileH);
+			}
+		}
+		if(lives <= 0) { gameover(); return; }
+	
+	
+
 	requestAnimationFrame(drawGame);
+}
+
+
+// gameover
+function gameover() {
+	let gameoverText = document.getElementById("gameover");
+	let gameoverButton = document.getElementById("container");
+	gameoverText.style.display = "block";
+	gameoverButton.style.display = "flex";
+
+	context.fillStyle = "rgba(0,0,0,0.8)";
+	context.fillRect(0, 0, viewport.screen[0], viewport.screen[1]);
+	return;
+}
+
+let weaponSize = [30, 70];
+let weapon = {
+	position: [0, 0],
+	size : 30
+}
+function loadAudio(id) {
+	let source = document.querySelector("#audioSource");
+	audio.load();
+	switch(id) 
+	{
+		case 1:
+		source.src = 'sound/break_bush.wav';
+		playAudio();
+		break;
+		
+		case 3:
+		source.src = 'sound/break_rock.wav';
+		playAudio();
+		break;
+		case 4:
+		source.src = 'sound/item.wav';
+		playAudio();
+		break;
+	}
+	
+}
+
+function playAudio() {
+	audio.volume = 0.2;
+	audio.loop = false;
+	audio.play();
 }

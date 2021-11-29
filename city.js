@@ -43,6 +43,8 @@ let gameMap = [
 ];
 
 let mapTileData = new TileMap();
+let audio;
+let source;
 
 let getkey = false;
 // 타일 크기
@@ -76,7 +78,7 @@ function rideboat(){
 	}
 }
 
-let lives = 5;
+let lives = 3;
 
 let tileset = null;
 let tilesetURL = "tile_city.png";
@@ -493,6 +495,7 @@ window.onload = function(){
 	requestAnimationFrame(drawGame);
 	context.font = "bold 10pt sans-serif";
 	let body = document.querySelector("body");
+	audio = document.querySelector('#audio');
 	window.addEventListener("keydown", function(e) {
 		if(e.keyCode>=37 && e.keyCode<=40) { keysDown[e.keyCode] = true; }
 	});
@@ -729,6 +732,7 @@ function drawGame(){
 			for(let i = 0; i < coll.length; i++) {
 				if(clickPosition[0] >= viewport.offset[0] + coll[i].getX()*tileW && clickPosition[0] <= viewport.offset[0] + coll[i].getX()*tileW + tileW && clickPosition[1] >= viewport.offset[1] + coll[i].getY()*tileH  && clickPosition[1] <= viewport.offset[1] + coll[i].getY()*tileH + tileH) {
 					console.log("object");
+					loadAudio(coll[i].type);
 					target = i;
 					mapTileData.map[toIndex(coll[i].x, coll[i].y)] = 0;
 					gameMap[toIndex(coll[i].x, coll[i].y)] = 4;
@@ -792,7 +796,7 @@ function drawGame(){
 	
 
 	// printLives
-	for(let i=0; i<5; i++) {
+	for(let i=0; i<3; i++) {
 		if(i+1 <= lives) {
 			// 채워진 하트
 			context.drawImage(tileset, 3*16, 5*16+1, 16-1, 16, tileW*i+20, 20, tileW, tileH-1);
@@ -825,4 +829,18 @@ let weaponSize = [30, 70];
 let weapon = {
 	position: [0, 0],
 	size : 30
+}
+function loadAudio(id) {
+	let source = document.querySelector("#audioSource");
+	audio.load();
+	if(id == 1) {
+		source.src = 'sound/break_plastic.wav';
+		playAudio();
+	}
+}
+
+function playAudio() {
+	audio.volume = 0.2;
+	audio.loop = false;
+	audio.play();
 }

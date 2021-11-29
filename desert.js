@@ -76,7 +76,7 @@ function touchcave(){
 	}
 }
 
-let lives = 5;
+let lives = 3;
 
 let tileset = null, caveset = null, speedset = null;
 let tilesetURL = "tile_desert.png";
@@ -756,7 +756,7 @@ function drawGame() {
 		
 	
 		// printLives
-		for(let i=0; i<5; i++) {
+		for(let i=0; i<3; i++) {
 			if(i+1 <= lives) {
 				// 채워진 하트
 				context.drawImage(tileset, 3*16, 5*16+1, 16-1, 16, tileW*i+20, 20, tileW, tileH-1);
