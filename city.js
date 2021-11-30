@@ -1,5 +1,8 @@
 "use script"
 
+// 이 js파일에 주석을 달았습니다. 
+// 설명이 포함되어 있습니다.
+
 // 2D rendering context 저장하는 변수
 let context = null;
 
@@ -136,9 +139,9 @@ MapObject.prototype.getY = function() {
 
 // 바닥 종류
 let floorTypes = {
-	solid: 0,
-	path: 1,
-	abstacle: 2, //막는 블록
+	solid: 0, // 지나가지 못하는 블록
+	path: 1, // 길
+	abstacle: 2, // 막는 블록
 	roadD: 5, // 가로 횡단보도
 	roadR: 7, // 세로 횡단보도
 };
@@ -178,9 +181,10 @@ function TileMap(){
 	this.map = [];
 	this.w = 0;
 	this.h = 0;
+	// 장애물 개수만큼 for문 돌리기
 	this.levels	= 2;
 }
-TileMap.prototype.buildMapFromData = function(d, w, h){
+TileMap.prototype.MapData = function(d, w, h){
 	this.w = w;
 	this.h = h;
 	
@@ -254,7 +258,8 @@ let viewport = {
 		// endtile은 이제 중앙 타일에 값을 추가하는 것을 제외하고 같은 방식으로 계산
 		// 오른쪽 또는 아래쪽 가장자리를 넘어서 그리려고 하지 않는지 확인하기 위해
 		// 좌표가 지도 폭과 높이보다 작은지 확인
-		// 배열은 0기반으로 마지막 x열은 mapW-1 행은 mapH-1
+		// 배열은 0부터 시작하므로 -1씩 빼줘야함. 
+		// 그래서 마지막 x열은 mapW-1 행은 mapH-1임
 		this.endTile[0] = tile[0] + 1 + Math.ceil((this.screen[0]/2) / tileW);
 		this.endTile[1] = tile[1] + 1 + Math.ceil((this.screen[1]/2) / tileH);
 
@@ -262,34 +267,36 @@ let viewport = {
 		if(this.endTile[1] >= mapH) { this.endTile[1] = mapH-1; }
 	}
 };
-// Character의 인스턴스 저장
+// Character의 인스턴스를 player에 저장
 let player = new Character();
 
 function Character(){
 	// 캐릭터가 현재 이동하고 있는 타일 좌표
 	this.tileFrom	= [5,5];
 	this.tileTo		= [5,5];
-	//
+	// "
 	
-	this.timeMoved	= 0; // 이동 시작 시간(밀리초)
+	this.timeMoved	= 0;       // 이동 시작 시간(밀리초)
 	this.dimensions	= [44,44]; // 캐릭터 치수(픽셀 단위) 저장
 	this.position	= [45,45]; // 캔버스에서 캐릭터 실제? 위치
 
+	// 타일 속도 조절
 	this.delayMove	= {};
 	this.delayMove[floorTypes.path]	= 350;
 	this.delayMove[floorTypes.roadD] = 150;
 	this.delayMove[floorTypes.roadR] = 150;
 
+	// 캐릭터의 시작 방향 (누워있는 이미지)
 	this.direction	= directions.sleep;
 
-	// 캐릭터용? 스프라이트
-	// 각 방향에 대한 항목을 추가(배열)
+	// 캐릭터용 스프라이트
+	// 각 방향에 대한 항목을 추가 (배열)
 	this.sprites = {};
 	this.sprites[directions.up]		= [{x:97,y:65,w:15,h:16}];
 	this.sprites[directions.right]	= [{x:16,y:64,w:16,h:16}];
 	this.sprites[directions.down]	= [{x:81,y:65,w:15,h:15}];
 	this.sprites[directions.left]	= [{x:48,y:49,w:15,h:15}];
-	
+	// 시작 방향
 	this.sprites[directions.sleep] = [{x:112,y:49,w:15,h:15}];
 }
 
@@ -319,8 +326,15 @@ Character.prototype.processMovement = function(t){
 		//캐릭터가 현재 서 있는 지도 타일의 floortype를 변수에 저장
 		let tileFloor = tileTypes[gameMap[toIndex(this.tileFrom[0], this.tileFrom[1])]].floor;
 
-		// 캐릭터가 이 방향으로 이동할 수 있는지 보고 그렇다면 이동한다.
+		// 캐릭터가 해당 횡단보도의 방향으로 이동할 수 있는지와 
+		// 횡단보도 타일에 위치에 있는 지 확인하고
+		// 그렇다면 해당 방향으로 캐릭터를 이동한다.
+		// requestAnimationFrame를 이용해 drawGame을 인자로 재귀호출함
+		// 따라서 해당 횡단보도 타일이 끝날 때까지 캐릭터는 해당 방향으로 이동함.
+
+		// 가로 횡단보도 -> 아래 방향으로 이동
 		if(tileFloor==floorTypes.roadD && this.canMoveDown()) { this.moveDown(t); }
+		// 세로 횡단보도 -> 오른쪽 방향으로 이동
 		else if(tileFloor==floorTypes.roadR && this.canMoveRight()) { this.moveRight(t); }
 
 		if(typeof tileEvents[toIndex(this.tileTo[0], this.tileTo[1])] != 'undefined'){
@@ -440,7 +454,7 @@ Character.prototype.moveDirection = function(d, t) {
 			return this.moveRight(t);
 	}
 };
-
+// 좌표 구하는 함수
 function toIndex(x, y){
 	return((y * mapW) + x);
 }
@@ -454,19 +468,19 @@ function getFrame(sprite, duration, time, animated){
 	}
 }
 
-
+// 몬스터 이미지
 let bat = new Image();
 bat.src = 'image/fly.png';
 let clickPosition = [];
 let weaponId;
 
+// 몬스터 클래스
 class Monster {
 	constructor() {
 		this.isFly = 0;
 		this.delayMove	= {};
 		this.delayMove[floorTypes.path]	= 180;
-		this.delayMove[floorTypes.grass]= 350;
-		this.delayMove[floorTypes.sand]= 1100;
+		
 		this.position = [Math.floor(Math.random() * screen.width), Math.floor(Math.random() * screen.height)];
 		this.direction = directions.up;
 		this.distance = Math.floor(Math.random() * 150) + 30;
@@ -539,16 +553,19 @@ let isWeaponShown;
 let coll;
 
 // 페이지 로드가 완료되면 실행할 함수
-//  -canvas에 대한 그리기 컨텍스트를 context 변수에 할당 / 글꼴
+// ( canvas에 대한 그리기 컨텍스트를 context 변수에 할당 / 글꼴 )
 window.onload = function(){
 	context = document.getElementById('game').getContext("2d");
 	requestAnimationFrame(drawGame);
 	context.font = "bold 10pt sans-serif";
+
+	// 사운드 처리
 	let body = document.querySelector("body");
 	for(let i = 0; i<10; i++) {
 		let au = new Audio();
 		audio.push(au);
 	}
+	// 사운드 경로
 	audio[9].src = 'sound/background.mp3';
 	audio[1].src = 'sound/break_plastic.wav';
 	audio[0].src = 'sound/attack.ogg';
@@ -603,6 +620,7 @@ window.onload = function(){
 	viewport.screen = [document.getElementById('game').width, document.getElementById('game').height];
 
 	tileset = new Image();
+	// 타일이 로드 됐는지 확인하여 실행
 	tileset.onload = function() { tilesetLoaded = true; };
 	tileset.src = tilesetURL;
 
@@ -621,8 +639,10 @@ window.onload = function(){
 			tileTypes[x]['spriteDuration'] = t;
 		}
 	}
-	mapTileData.buildMapFromData(gameMap, mapW, mapH);
+	mapTileData.MapData(gameMap, mapW, mapH);
 
+	// 장애물 배열
+	// 고정되어 있는 장애물
     let arr = [
         [4,4],[4,5],[4,6],[7,6],[7,7],
         [7,8],[6,4],[5,10],[6,6],[4,8],
@@ -635,10 +655,12 @@ window.onload = function(){
         [4,14],[6,30],[21,21],[22,22],[20,22]
     ];
 
+	// 장애물 배열
     coll = new Array(160);
 
     let row = 14, col = 3;
     for(let i=0; i<coll.length; i++){
+		// 꼬깔 생성
 		coll[i] = new MapObject(1);
     }
     for(let i=0; i<coll.length; i++){
@@ -654,6 +676,8 @@ window.onload = function(){
             row++;
         }
         else{
+			// 랜덤으로 배치되는 장애물
+
             let rand1 = Math.floor(Math.random()*19 ) + 11;
 			let rand2 = Math.floor(Math.random()*16 ) + 14;
 
@@ -703,6 +727,7 @@ window.onload = function(){
 		}
 	*/
 	
+	// 보물상자 생성 및 위치
 	let keybox = new MapObject(2); 
 	keybox.placeAt(21, 22);
 };
@@ -718,7 +743,10 @@ let shadow = 200;
 function drawGame(){
 	// context 있는 지 확인 ..없으면 종료
 	if(context==null) { return; }
-	if(!tilesetLoaded) { requestAnimationFrame(drawGame); return; }
+	if(!tilesetLoaded) { 
+		requestAnimationFrame(drawGame); 
+		return; 
+	}
 
 	let currentFrameTime = Date.now();
 	let timeElapsed = currentFrameTime - lastFrameTime;
@@ -732,8 +760,9 @@ function drawGame(){
 		framesLastSecond = frameCount;
 		frameCount = 1;
 	}
-	
-	else { frameCount++; }
+	else { 
+		frameCount++; 
+	}
 
 	if(!player.processMovement(currentFrameTime)){
 		if(keysDown[38] && player.canMoveUp())			{ player.moveUp(currentFrameTime); }
@@ -748,11 +777,14 @@ function drawGame(){
 	// 플레이어 상단/왼쪽 위치와 플레이어 너비/높이의 절반으로 설정
 	viewport.update(player.position[0] + (player.dimensions[0]/2), player.position[1] + (player.dimensions[1]/2));
 
-	// 배경색
+	// 배경색 (바다)
 	context.fillStyle = "#0080ff";
 	// 그리기를 시작하기 전 0,0에서 캔버스 너비, 뷰포트 화며 ㄴ속성에서 가져온 높이까지
 	// 위에 색으로 캔버스를 덮어서 마지막 프레임에서 캔버스의 모든 항목을 지움
 	context.fillRect(0, 0, viewport.screen[0], viewport.screen[1]);
+
+
+	//drawImage(타일 이미지, 타일 스프라이트의 x, 타일 스프라이트의 y 위치, w, h, 캔버스의 타일, 뷰포트 오프셋, 타일 너비 크기, 타일 높이 크기)
 
 	for(let z = 0; z< mapTileData.levels; z++){
 		//타일을 그리기 위한 / 0에서 지도 가장자리(mapW,mapH)까지 그리는 대신
@@ -764,8 +796,7 @@ function drawGame(){
 				if(z==0){
 					// 타일타입 저장, 게임맵 배열의 현제 x,y 위치
 					let tile = tileTypes[gameMap[toIndex(x,y)]];
-					let sprite = getFrame(tile.sprite, tile.spriteDuration,
-						currentFrameTime, tile.animated);
+					let sprite = getFrame(tile.sprite, tile.spriteDuration, currentFrameTime, tile.animated);
 
 					// 타일 이미지, 타일 스프라이트의 x,y 위치, w,h,캔버스의 타일, 뷰포트 오프셋, 타일위드 ..
 					context.drawImage(tileset,
@@ -773,9 +804,10 @@ function drawGame(){
 						viewport.offset[0] + (x*tileW), viewport.offset[1] + (y*tileH), tileW, tileH);
 				
 				}
+
 				// 현재 타일에 개체가 있는지 확인
 				// 그렇다면 오브젝트타입스 항목의 zIndex가 현재 그리는 수준과 같으면
-				// 이 개체에 대한 스프라이트를 그림
+				// 이 개체에 대한 스프라이트를 그림(장애물)
 				let o = mapTileData.map[toIndex(x,y)].object;
 				if(o!=null && objectTypes[o.type].zIndex==z){
 					let ot = objectTypes[o.type];
@@ -891,11 +923,12 @@ function drawGame(){
 			context.drawImage(tileset, 1*16, 5*16+1, 16, 16, tileW*i+20, 20, tileW, tileH);
 		}
 	}
-	if(lives <= 0) { gameover(); return; }
+	if(lives <= 0) { 
+		gameover(); 
+		return; 
+	}
 	if(getkey == true) text();
 
-
-		
 	requestAnimationFrame(drawGame);
 }
 
@@ -932,11 +965,11 @@ function text() {
 	context.font = '55px arcade';
 	context.fillStyle = "black";
 	context.fillText('OBTAINED A KEY!   go to the boat.', 50, screen.height - 30);
-  }
+}
 
-  function replay() {
-	  location.href = "game_city.html";
-  }
-  function back() {
-	  location.href = "main.html";
-  }
+function replay() {
+	location.href = "game_city.html";
+}
+function back() {
+	location.href = "main.html";
+}

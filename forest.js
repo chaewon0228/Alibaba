@@ -199,7 +199,7 @@ function TileMap(){
 	this.h = 0;
 	this.levels	= 4;
 }
-TileMap.prototype.buildMapFromData = function(d, w, h){
+TileMap.prototype.MapData = function(d, w, h){
 	this.w = w;
 	this.h = h;
 	
@@ -579,7 +579,7 @@ window.onload = function(){
 			tileTypes[x]['spriteDuration'] = t;
 		}
 	}
-	mapTileData.buildMapFromData(gameMap, mapW, mapH);
+	mapTileData.MapData(gameMap, mapW, mapH);
 
 	let arr = [
 		[13, 9], [12, 9], [12, 10], [12, 11], [11, 10],
