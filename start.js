@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function(event){
   }
     function StartTextAnimation(i) {
       if (typeof dataText[i] == 'undefined') {
-      document.querySelector(".box").innerHTML = "<a class='start2' href='index.html'>START</a>";
+      document.querySelector(".box").innerHTML = "<a class='start2' href='game_city.html'>START</a>";
         setTimeout(function() {
           window.location.reload();
         }, 20000);

@@ -85,6 +85,7 @@ let tileset = null;
 let tilesetURL = "tile_city.png";
 let tilesetLoaded = false;
 
+// 통과할 수 없는 solid 
 let objectCollision = {
 	none: 0,
 	solid: 1
@@ -106,16 +107,21 @@ let objectTypes = {
 	}
 };
 
+//지도의 객체는 mapobject 클래스 인스턴스에 의해 추적/
 function MapObject(nt){
 	this.x = 0;
 	this.y = 0;
 	this.type = nt;
 }
+// 지도에 개체를 배치해야 하는 nx, ny
 MapObject.prototype.placeAt = function(nx, ny){
+	// 개체가 이미 지도 타일에 배치되어 있는 지 확인
+	// 그렇다면 해당 연결을 제거
 	if(mapTileData.map[toIndex(this.x, this.y)].object==this){
 		mapTileData.map[toIndex(this.x, this.y)].object = null;
 	}
-	
+	// 그런 다음 이 객체의 x, y위치를 설정하고 mapTileData에서 해당 타일의
+	// Tile.object 속성을 설정해 객체를 참조
 	this.x = nx;
 	this.y = ny;
 	
@@ -133,8 +139,8 @@ let floorTypes = {
 	solid: 0,
 	path: 1,
 	abstacle: 2, //막는 블록
-	roadD: 5,
-	roadR: 7,
+	roadD: 5, // 가로 횡단보도
+	roadR: 7, // 세로 횡단보도
 };
 
 // 타일 종류
@@ -208,23 +214,47 @@ let keysDown = {
 };
 
 let viewport = {
+	// 캔버스 너비 / 높이
 	screen: [0,0],
+	// 표시되는 지도 왼쪽 상단 영역의 타일 좌표 
 	startTile: [0,0],
+	// 표시되는 지도 오른쪽 하단 타일 좌표
 	endTile: [0,0],
+	// 지도 타일 및 객체를 이동해야 하는 픽셀 단위로 뷰포트 객체를 작성
 	offset: [0,0],
+
+	// 뷰포트 중심(px, py)
+	// 뷰포트 객체는 저희가 볼 수 있는 영역의 중심이 되고자 하는 x와 y 위치라는
+	// 두 가지 인수를 갖는 업데이트 방법을 가질 것이다.
+	// 캔버스 폭 또는 높이의 절반에서 계산되는 x 및 y 오프셋을 설정
 	update: function(px, py) {
 		this.offset[0] = Math.floor((this.screen[0]/2) - px);
 		this.offset[1] = Math.floor((this.screen[1]/2) - py);
 
+		// Math.floor => 가장 가까운 정수로 내림(그릴 때 찢어지는 거 방지)
+		// 이제 지정된 뷰포트 중심이 속하는 타일의 좌표를 찾습니다.
+		// px값을 타일 폭으로 나눈 결과를 반올림하여 이를 수행하고 py도 동일
+		// 이것을 사용해 첫번째 타일과 마지막 타일을 계산
 		let tile = [ Math.floor(px/tileW), Math.floor(py/tileH) ];
         
 
+		// 화면 폭의 절반에 들어갈 수 있는 최대 타일 수를 계산하고
+		// 중앙 타일에서 그 수를 빼서 x축에서 첫번째 타일의 위치를 계산할 수 있다.
+		// 타일이 화면에 완전히 표시되지 않고 부분적으로만 표시될 수 있도록 1을 뺐다.
+		// y축도 동일하다
 		this.startTile[0] = tile[0] - 1 - Math.ceil((this.screen[0]/2) / tileW);
 		this.startTile[1] = tile[1] - 1 - Math.ceil((this.screen[1]/2) / tileH);
 
+		// 그런 다음 x 및 y좌표가 0보다 작지 않은 지 확인
+		// 이는 맵 경계에서 벗어나기 때문
+		// 만약 존재한다면 0으로 설정(거기에 없는 것을 그리려고 하는 것이 의미x)
 		if(this.startTile[0] < 0) { this.startTile[0] = 0; }
 		if(this.startTile[1] < 0) { this.startTile[1] = 0; }
 
+		// endtile은 이제 중앙 타일에 값을 추가하는 것을 제외하고 같은 방식으로 계산
+		// 오른쪽 또는 아래쪽 가장자리를 넘어서 그리려고 하지 않는지 확인하기 위해
+		// 좌표가 지도 폭과 높이보다 작은지 확인
+		// 배열은 0기반으로 마지막 x열은 mapW-1 행은 mapH-1
 		this.endTile[0] = tile[0] + 1 + Math.ceil((this.screen[0]/2) / tileW);
 		this.endTile[1] = tile[1] + 1 + Math.ceil((this.screen[1]/2) / tileH);
 
@@ -251,6 +281,9 @@ function Character(){
 	this.delayMove[floorTypes.roadR] = 150;
 
 	this.direction	= directions.sleep;
+
+	// 캐릭터용? 스프라이트
+	// 각 방향에 대한 항목을 추가(배열)
 	this.sprites = {};
 	this.sprites[directions.up]		= [{x:97,y:65,w:15,h:16}];
 	this.sprites[directions.right]	= [{x:16,y:64,w:16,h:16}];
@@ -275,6 +308,7 @@ Character.prototype.processMovement = function(t){
 	// 캐릭터가 움직이면 실제 위치를 찾음
 	if(this.tileFrom[0]==this.tileTo[0] && this.tileFrom[1]==this.tileTo[1]) { return false; }
 
+	//캐릭터가 이동하는(tileFrom)지도 타일의 floorType에 해당하는 새로운 movespeed 변수에 딜레이무브를 할당
 	let moveSpeed = this.delayMove[tileTypes[gameMap[toIndex(this.tileFrom[0],this.tileFrom[1])]].floor];
 
 	// 현재 이동을 시작한 이후로 소요된 시간이 캐릭터가 타일 1개를 이동하는 데 걸리는 시간과 같거나 더 긴지 확인
@@ -282,8 +316,10 @@ Character.prototype.processMovement = function(t){
 	if((t-this.timeMoved)>=moveSpeed){
 		this.placeAt(this.tileTo[0], this.tileTo[1]);
 
+		//캐릭터가 현재 서 있는 지도 타일의 floortype를 변수에 저장
 		let tileFloor = tileTypes[gameMap[toIndex(this.tileFrom[0], this.tileFrom[1])]].floor;
 
+		// 캐릭터가 이 방향으로 이동할 수 있는지 보고 그렇다면 이동한다.
 		if(tileFloor==floorTypes.roadD && this.canMoveDown()) { this.moveDown(t); }
 		else if(tileFloor==floorTypes.roadR && this.canMoveRight()) { this.moveRight(t); }
 
@@ -314,9 +350,17 @@ Character.prototype.processMovement = function(t){
 
 	return true;
 }
+// 캐릭터가 이동하려는 타일의 x/y 위치를 가져옴
 Character.prototype.canMoveTo = function(x, y){
+
+	// x 및 y 좌표가 지도 경계 내에 있는 지 확인
+	// 없으면 캐릭터가 이동할 수 없으므로 false 반환
 	if(x < 0 || x >= mapW || y < 0 || y >= mapH) { return false; }
+
+	// 캐릭터가 대상 타일의 floorType에 대해 할당된 값이 없을 경우 false
 	if(typeof this.delayMove[tileTypes[gameMap[toIndex(x,y)]].floor]=='undefined') { return false; }
+	
+	// 오프젝트타임이 솔리드 인지 확인
 	if(mapTileData.map[toIndex(x,y)].object!=null){
 		let o = mapTileData.map[toIndex(x,y)].object;
 		if(objectTypes[o.type].collision==objectCollision.solid){
@@ -326,11 +370,15 @@ Character.prototype.canMoveTo = function(x, y){
 	
 	return true;
 };
+
+// canMoveTo 메서드를 호출해 이동하려는 방향에 따라 수정된 x 또는 y값과 함께
+// 캐릭터의 현재 위치(tileFrom)을 인수로 전달하고 결과 반환
 Character.prototype.canMoveUp = function() { return this.canMoveTo(this.tileFrom[0], this.tileFrom[1]-1); };
 Character.prototype.canMoveDown = function() { return this.canMoveTo(this.tileFrom[0], this.tileFrom[1]+1); };
 Character.prototype.canMoveLeft = function() { return this.canMoveTo(this.tileFrom[0]-1, this.tileFrom[1]); };
 Character.prototype.canMoveRight = function() { return this.canMoveTo(this.tileFrom[0]+1, this.tileFrom[1]); };
 Character.prototype.canMoveDirection = function(d) {
+	// 방향값을 인수로 
 	switch(d){
 		case directions.up:
 			return this.canMoveUp();
@@ -342,7 +390,8 @@ Character.prototype.canMoveDirection = function(d) {
 			return this.canMoveRight();
 	}
 };
-
+// 게임시간(밀리초) 인수로 사용하고 tileTo x또는 대상 방향에 필요한 y 속성
+// tileMoved 값도 전달된 게임 시간으로 업데이트
 Character.prototype.moveLeft = function(t) { 
 	this.tileTo[0]-=1; this.timeMoved = t; this.direction = directions.left; 
 	if(this.sprites[directions.left][0].x == 65) this.sprites[directions.left][0].x = 81;
@@ -550,6 +599,7 @@ window.onload = function(){
 		}, 500);
 	});
 
+	// 캔버스 크기를 확인하고 뷰포트 개체의 화면 속성에 저장
 	viewport.screen = [document.getElementById('game').width, document.getElementById('game').height];
 
 	tileset = new Image();
@@ -692,25 +742,40 @@ function drawGame(){
 		else if(keysDown[39] && player.canMoveRight())	{ player.moveRight(currentFrameTime); }
 	}
 
+	// drawgame 함수에서는 이동이 처리되면 뷰포트를 업데이트함
+	// 캐릭터가 이동한 후 호출
+	// 뷰포트 중심을 x, y, (플레이어x + 플레이어 너비/2), (플레이어y + 플레이어 높이/2)
+	// 플레이어 상단/왼쪽 위치와 플레이어 너비/높이의 절반으로 설정
 	viewport.update(player.position[0] + (player.dimensions[0]/2), player.position[1] + (player.dimensions[1]/2));
 
 	// 배경색
 	context.fillStyle = "#0080ff";
-	// 
+	// 그리기를 시작하기 전 0,0에서 캔버스 너비, 뷰포트 화며 ㄴ속성에서 가져온 높이까지
+	// 위에 색으로 캔버스를 덮어서 마지막 프레임에서 캔버스의 모든 항목을 지움
 	context.fillRect(0, 0, viewport.screen[0], viewport.screen[1]);
 
 	for(let z = 0; z< mapTileData.levels; z++){
+		//타일을 그리기 위한 / 0에서 지도 가장자리(mapW,mapH)까지 그리는 대신
+		// startTile에서 시작하고 endTile에서 끝나야함
 		for(let y = viewport.startTile[1]; y <= viewport.endTile[1]; ++y){
 			for(let x = viewport.startTile[0]; x <= viewport.endTile[0]; ++x){
+				// 바닥 타일을 그리는 코드는 변경되지 않은 상태로 유지되지만 
+				// 바닥 타일이 레벨 0에서만 그려지도록
 				if(z==0){
+					// 타일타입 저장, 게임맵 배열의 현제 x,y 위치
 					let tile = tileTypes[gameMap[toIndex(x,y)]];
 					let sprite = getFrame(tile.sprite, tile.spriteDuration,
 						currentFrameTime, tile.animated);
+
+					// 타일 이미지, 타일 스프라이트의 x,y 위치, w,h,캔버스의 타일, 뷰포트 오프셋, 타일위드 ..
 					context.drawImage(tileset,
 						sprite.x, sprite.y, sprite.w, sprite.h,
 						viewport.offset[0] + (x*tileW), viewport.offset[1] + (y*tileH), tileW, tileH);
 				
 				}
+				// 현재 타일에 개체가 있는지 확인
+				// 그렇다면 오브젝트타입스 항목의 zIndex가 현재 그리는 수준과 같으면
+				// 이 개체에 대한 스프라이트를 그림
 				let o = mapTileData.map[toIndex(x,y)].object;
 				if(o!=null && objectTypes[o.type].zIndex==z){
 					let ot = objectTypes[o.type];
@@ -726,7 +791,9 @@ function drawGame(){
 				
 			}
 		}
+		// 현재 레벨이 1이면 캐릭터를 그림
 		if(z==1){
+			// 플레이어의 방향을 고려해 플레이어 스프라이트 데이터에 대한 참조를 가져옴
 			let sprite = player.sprites[player.direction];
 			context.drawImage(tileset,
 				sprite[0].x, sprite[0].y,

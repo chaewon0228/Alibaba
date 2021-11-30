@@ -807,8 +807,9 @@ function drawGame(){
 				context.drawImage(tileset, 1*16, 5*16+1, 16, 16, tileW*i+20, 20, tileW, tileH);
 			}
 		}
-		if(lives <= 0) { gameover(); return; }
 		if(getkey == true) text();
+		if(lives <= 0) { gameover(); return; }
+		
 	
 
 	requestAnimationFrame(drawGame);
@@ -851,7 +852,7 @@ function text() {
   }
 
   function replay() {
-	location.href = "game_city.html";
+	location.href = "game_forest.html";
 }
 function back() {
 	location.href = "main.html";
