@@ -219,10 +219,10 @@ let directions = {
 };
 // 방향키 값
 let keysDown = {
-	37: false,
-	38: false,
-	39: false,
-	40: false
+	65: false, // 왼 65
+	87: false, // 위 87
+	68: false, // 오른 68
+	83: false // 아래 83
 };
 
 let viewport = {
@@ -499,14 +499,14 @@ window.onload = function(){
 	context.font = "bold 10pt sans-serif";
 
 	window.addEventListener("keydown", function(e) {
-		if(e.keyCode>=37 && e.keyCode<=40) { keysDown[e.keyCode] = true; }
+		if(e.keyCode>=65 && e.keyCode<=87) { keysDown[e.keyCode] = true; }
 		if(isMusinPlay == 0) {
 			loadAudio(9);
 			isMusinPlay = 1;
 		}
 	});
 	window.addEventListener("keyup", function(e) {
-		if(e.keyCode>=37 && e.keyCode<=40) { keysDown[e.keyCode] = false; }
+		if(e.keyCode>=65 && e.keyCode<=87) { keysDown[e.keyCode] = false; }
 	});
 	for(let i = 0; i<10; i++) {
 		let au = new Audio();
@@ -646,10 +646,10 @@ function drawGame() {
 	else { frameCount++; }
 
 	if(!player.processMovement(currentFrameTime)){
-		if(keysDown[38] && player.canMoveUp())			{ player.moveUp(currentFrameTime); }
-		else if(keysDown[40] && player.canMoveDown())	{ player.moveDown(currentFrameTime); }
-		else if(keysDown[37] && player.canMoveLeft())	{ player.moveLeft(currentFrameTime); }
-		else if(keysDown[39] && player.canMoveRight())	{ player.moveRight(currentFrameTime); }
+		if(keysDown[87] && player.canMoveUp())			{ player.moveUp(currentFrameTime); }
+		else if(keysDown[83] && player.canMoveDown())	{ player.moveDown(currentFrameTime); }
+		else if(keysDown[65] && player.canMoveLeft())	{ player.moveLeft(currentFrameTime); }
+		else if(keysDown[68] && player.canMoveRight())	{ player.moveRight(currentFrameTime); }
 	}
 
 	viewport.update(player.position[0] + (player.dimensions[0]/2), player.position[1] + (player.dimensions[1]/2));
