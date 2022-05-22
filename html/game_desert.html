@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<style>
+		body{
+			width:100%;
+			height:100%;
+			image-rendering:-moz-crisp-edges;
+			image-rendering:pixelated;
+            margin: 0;
+            padding: 0;
+			cursor: crosshair;
+		}
+		@font-face {
+                font-family: 'arcade';
+                src: url('../font/arcade.ttf') format('truetype');
+                font-weight: normal;
+                font-style: normal; 
+            }
+		.container {
+			position: fixed;
+			display: none;
+			width: 100%;
+			justify-content: center;
+			top: 200px;
+			margin: 0 auto;
+		}
+		.replay {
+			margin-right: 50px;
+		}
+		.back {
+			margin-left: 50px;
+		}
+		button {
+			padding: 20px;
+			font-size: 50px;
+			font-family: arcade;
+			border-radius: 40px;
+			border: none;
+		}
+		.gameover {
+			margin: 0;
+			position: fixed;
+			top: 0px;
+			width: 100%;
+			text-align: center;
+			font-size: 150px;
+			font-family: arcade;
+			color: white;
+			display: none;
+		}
+		button:hover {
+			color: white;
+			background-color: black;
+		}
+		
+	</style>
+	<script src="../js/desert.js"></script>
+</head>
+<body style="overflow: hidden;">
+	<div id = "wrapper">
+		<!-- <canvas id="game" width="2560px" height="1440px"></canvas> -->
+		<canvas id="game" width="1600px" height="1000px"></canvas>
+	</div>
+	<p class="gameover" id="gameover">GAME OVER</p>
+	<div class="container" id="container">
+		<button class="replay" onclick="replay()">replay</button>
+		<button class="back" onclick="back()">go back</button>
+	</div>
+
+</body>
+</html>
