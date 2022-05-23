@@ -20,21 +20,19 @@
             background-repeat: no-repeat;
             background-size: cover;
             display: flex;
-            justify-content: center;
             font-family: 'arcade';
+            align-items: center;
+            box-sizing: border-box;
         }
 
         .box {
-            font-size: 30px;
-            height: 150px;
-            margin: 20px;
-            position: fixed;
-            bottom: 0px;
-            width: 90%;
-            border: 4px solid white;
+            font-size: 70px;
+            height: 100vh;
+            width: 100%;
             color: white;
-            padding: 30px;
-            background-color: black;
+            font-weight: bold;
+            text-align: center;
+            line-height: 100vh;
         }
 
         @keyframes caret {
@@ -49,21 +47,22 @@
             margin: 20px;
             position: fixed;
             right: 0px;
-            font-size: 50px;
+            top: 0px;
+            font-size: 70px;
         }
 
         .start:hover {
-            font-size: 55px;
+            font-size: 80px;
         }
 
         .start2 {
             font-family: 'arcade';
             color: white;
-            font-size: 50px;
+            font-size: 70px;
         }
 
         .start2:hover {
-            font-size: 55px;
+            font-size: 80px;
         }
     </style>
     <meta charset="utf-8">
@@ -72,7 +71,7 @@
 </head>
 
 <body>
-    <a class="start" href="game_forest.html">SKIP</a>
+    <a class="start" href="../html/game_forest.html">SKIP</a>
     <div class="box">
     </div>
     <audio loop id="audio">
@@ -81,5 +80,4 @@
     </audio>
 
 </body>
-
 </html>
