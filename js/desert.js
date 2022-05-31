@@ -161,7 +161,7 @@ let tileTypes = {
 	5: { colour: "#5bbd24", floor: floorTypes.sand, sprite: [{ x: 17, y: 33, w: 14, h: 14 }] },    // 진한 모래
 
 	6: { colour: "#286625", floor: floorTypes.abstacle, sprite: [{ x: 0, y: 48, w: 16, h: 15 }] }, // 수풀
-	7: { colour: "#e8bd7a", floor: floorTypes.path, sprite: [{ x: 16, y: 48, w: 16, h: 15 }] },    // 돌
+	7: { colour: "#e8bd7a", floor: floorTypes.path, sprite: [{ x: 16, y: 48, w: 20, h: 20 }] },    // 돌
 
 	8: { colour: "#e8bd7a", floor: floorTypes.abstacle, sprite: [{ x: 50, y: 34, w: 13, h: 11 }] }, // 물
 
@@ -755,11 +755,11 @@ function drawGame() {
 
 	// draw darkness shading
 	if (getkey == true) shadow *= 1.5;
-	for (let i = 0; i < viewport.screen[0]; i += 12) {
-		for (let j = 0; j < viewport.screen[1]; j += 12) {
-			let opacity = Math.min((Math.sqrt(Math.pow((i) - (viewport.offset[0] + player.position[0] + 8), 2) + Math.pow((j) - (viewport.offset[1] + player.position[1] + 8), 2)) - 50) / shadow, 1);
+	for (let i = 0; i < viewport.screen[0]; i += 8) {
+		for (let j = 0; j < viewport.screen[1]; j += 8) {
+			let opacity = Math.min((Math.sqrt(Math.pow((i) - (viewport.offset[0] + player.position[0] + 20), 2) + Math.pow((j) - (viewport.offset[1] + player.position[1] + 20), 2)) - tileW) / shadow, 1);
 			context.fillStyle = "rgba(0,0,0," + opacity + ")";
-			context.fillRect(i, j, 12, 12);
+			context.fillRect(i, j, 8, 8);
 		}
 	}
 	context.drawImage(tileset, 0, 5 * 16 + 1, 16, 16, weapon.position[0], weapon.position[1], weapon.size, weapon.size);
@@ -804,10 +804,10 @@ function gameover() {
 	return;
 }
 
-let weaponSize = [30, 70];
+let weaponSize = [45, 70];
 let weapon = {
 	position: [0, 0],
-	size: 30
+	size: weaponSize[0]
 }
 
 function loadAudio(id) {
