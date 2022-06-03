@@ -116,10 +116,14 @@ let objectTypes = {
 
 // coin item
 let coinType = {
-	1 : {
+	1: {
 		name: "Coin",
 		offset: [0, 0]
 	}
+}
+function stack(id, ctc) {
+	this.type = id;
+	this.ctc = ctc;
 }
 
 //지도의 객체는 mapobject 클래스 인스턴스에 의해 추적/
@@ -187,6 +191,7 @@ function Tile(tx, ty, tt) {
 	this.type = tt;
 	this.eventEnter = null;
 	this.object = null;
+	this.coinStack = null;
 }
 
 function TileMap() {
@@ -467,11 +472,26 @@ Character.prototype.moveDirection = function (d, t) {
 	}
 };
 
-Character.prototype.get = function(){
-	if(this.tileTo[0] != this.tileFrom[0] || this.tileTo[1] != this.tileFrom[1]) {
+Character.prototype.get = function () {
+	if (this.tileTo[0] != this.tileFrom[0] || this.tileTo[1] != this.tileFrom[1]) {
 		return false;
 	}
-	
+	let is = mapTileData.map[toIndex(this.tileFrom[0], this.tileFrom[1])].coinStack;
+
+	// if (is != null) {
+	// 	let remains = this.inventory.addItems(is.type, is.qty);
+
+	// 	if (remains) { is.qty = remains; }
+	// 	else {
+	// 		mapTileData.map[toIndex(this.tileFrom[0],
+	// 			this.tileFrom[1])].itemStack = null;
+	// 	}
+	// }
+
+	coin_cnt++;
+	console.log('코인 개수 : ' + coin_cnt);
+
+	return true;
 }
 
 // 좌표 구하는 함수
@@ -750,16 +770,31 @@ window.onload = function () {
 	// 보물상자 생성 및 위치
 	let keybox = new MapObject(2);
 	keybox.placeAt(21, 22);
+
+	for(let i = 3; i < 8; i++) {
+		let c = new placedCoin(1, 1);
+		c.placeAt(i, 1);
+	}
 };
 
 
 // coin 배치 
-function placedCoin(id, ctc){
+function placedCoin(id, ctc) {
 	this.type = id;
 	this.ctc = ctc; // coinType 항목 수
 	this.x = 0;
 	this.y = 0;
 }
+placedCoin.prototype.placeAt = function (nx, ny) {
+	if (mapTileData.map[toIndex(this.x, this.y)].coinStack == this) {
+		mapTileData.map[toIndex(this.x, this.y)].coinStack = null;
+	}
+	this.x = nx;
+	this.y = ny;
+
+	mapTileData.map[toIndex(nx, ny)].coinStack = this;
+}
+
 
 let isAttackable = 1;
 let attackId;
@@ -831,6 +866,20 @@ function drawGame() {
 						sprite.x, sprite.y, sprite.w, sprite.h,
 						viewport.offset[0] + (x * tileW), viewport.offset[1] + (y * tileH), tileW, tileH);
 
+				}
+				else if(z == 1){
+					let isCoin = mapTileData.map[toIndex(x, y)].coinStack;
+
+					if(isCoin != null){
+						let sprite = coinType[isCoin.type].sprite;
+
+						context.drawImage(tileset, sprite[0].x, sprite[0].y,
+							sprite[0].w, sprite[0].h,
+							viewport.offset[0] + (x*tileW) + coinType[isCoin.type].offset[0],
+							viewport.offset[1] + (y*tileH) + coinType[isCoin.type].offset[1],
+							sprite[0].w, sprite[0].h);
+							
+					}
 				}
 
 				// 현재 타일에 개체가 있는지 확인
@@ -965,7 +1014,7 @@ function drawGame() {
 	let coinsetLoaded = false;
 
 	coinset = new Image();
-	coinset.onload = function (){
+	coinset.onload = function () {
 		coinsetLoaded = true;
 	}
 	coinset.src = coinsetURL;
