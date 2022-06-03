@@ -5,6 +5,7 @@
             * {
                 margin: 0;
                 padding: 0;
+                font-family: 'arcade';
             }
             @font-face {
                 font-family: 'arcade';
@@ -18,44 +19,60 @@
                 background-size: cover;
                 display: flex;
                 justify-content: center;
-                font-family: 'arcade';
-            }
-            .start {
-                color: #7B6637;
-                margin: 20px;
-                position: fixed;
-                right: 0px;
-                font-size: 50px;
+                flex-direction: column;
+                align-items: center;
             }
             .name {
+                width: 30%;
                 margin-top: 50px;
-                
+                box-sizing: block;
             }
-
-            .start:hover {
-                color: black;
-                font-size: 55px;
+            .button-container {
+                margin-top: 100px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
             }
-            .script {
-                color: #7B6637;
-                margin: 20px;
-                position: fixed;
-                right: 0px;
-                bottom: 0px;
+            .button-container button {
+                display: block;
+                margin-bottom: 50px;
+                font-size: 40px;
+                padding: 20px;
+                text-align: center;
+                color: white;
+                border: none;
+                border-radius: 10px;
+            }
+            .button-container button:hover {
                 font-size: 50px;
             }
-            .script:hover {
-                color: black;
-                font-size: 55px;
+            .start {
+                background-color: green;
+            }
+            .rank {
+                background-color: #FFD700;
+            }
+            .script {
+                background-color: gray;
+            }
+            .button-container a {
+                text-decoration: none;
             }
         </style>
         <meta charset="utf-8">
         <title>열려라 참깨!</title>
     </head>
     <body>
-        <a class="start" href="start.html">START</a>
-        <a class="script" href="script.html">SCRIPT</a>
         <img class="name" src="../image/logo.png" />
+        <div class="button-container">
+            <a href="start.html"><button class="start">START</button></a>
+            <a href="ranking.html"><button class="rank">RANK</button></a>
+            <a href="script.html"><button class="script">SCRIPT</button></a>
+        </div>
+        <form action="/process/adduser" method="post">
+            <input type="text" name="username">
+            <input type="submit" value="전송">
+        </form>
         <audio loop id="audio">
             <source id="audioSource">
           Your browser does not support the audio element.
