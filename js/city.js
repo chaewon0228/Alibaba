@@ -89,7 +89,7 @@ let lives = 3;
 let coin_cnt = 0;
 
 let tileset = null;
-let tilesetURL = "../image/tile_city.png";
+let tilesetURL = "../image/tile_city_item.png";
 let tilesetLoaded = false;
 
 // 통과할 수 없는 solid 
@@ -118,7 +118,8 @@ let objectTypes = {
 let coinType = {
 	1: {
 		name: "Coin",
-		offset: [0, 0]
+		sprite: [{x: 97, y: 32, w: 16, h: 16}],
+		offset: [10, 0]
 	}
 }
 function stack(id, ctc) {
@@ -478,16 +479,6 @@ Character.prototype.get = function () {
 	}
 	let is = mapTileData.map[toIndex(this.tileFrom[0], this.tileFrom[1])].coinStack;
 
-	// if (is != null) {
-	// 	let remains = this.inventory.addItems(is.type, is.qty);
-
-	// 	if (remains) { is.qty = remains; }
-	// 	else {
-	// 		mapTileData.map[toIndex(this.tileFrom[0],
-	// 			this.tileFrom[1])].itemStack = null;
-	// 	}
-	// }
-
 	coin_cnt++;
 	console.log('코인 개수 : ' + coin_cnt);
 
@@ -771,9 +762,10 @@ window.onload = function () {
 	let keybox = new MapObject(2);
 	keybox.placeAt(21, 22);
 
+	// coin 생성 및 위치
 	for(let i = 3; i < 8; i++) {
 		let c = new placedCoin(1, 1);
-		c.placeAt(i, 1);
+		c.placeAt(i, 5);
 	}
 };
 
@@ -873,11 +865,12 @@ function drawGame() {
 					if(isCoin != null){
 						let sprite = coinType[isCoin.type].sprite;
 
+						// coin 그리기
 						context.drawImage(tileset, sprite[0].x, sprite[0].y,
 							sprite[0].w, sprite[0].h,
 							viewport.offset[0] + (x*tileW) + coinType[isCoin.type].offset[0],
 							viewport.offset[1] + (y*tileH) + coinType[isCoin.type].offset[1],
-							sprite[0].w, sprite[0].h);
+							sprite[0].w + 23, sprite[0].h + 25);
 							
 					}
 				}
