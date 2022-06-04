@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/akwls/Alibaba#readme",
   "dependencies": {
+    "alibaba": "^0.0.1",
     "body-parser": "^1.20.0",
     "express": "^4.18.1",
     "http": "^0.0.1-security",
