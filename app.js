@@ -19,6 +19,9 @@ app.use('/image', static(path.join(__dirname, 'image')))
 app.use('/gif', static(path.join(__dirname, 'gif')))
 app.use('/font', static(path.join(__dirname, 'font')))
 
+app.set('view engine', 'ejs');
+
+
 var database;
 var UserSchema;
 var UserModel;
@@ -64,6 +67,9 @@ function createUserSchema() {
     })
     UserSchema.static('findAll', function(callback) {
         return this.find({}, callback)
+    })
+    UserSchema.static('findByCoin', function(callback) {
+        return this.find({sort: {"coin": -1}, "limit": 5}, callback)
     })
 
     UserModel = mongoose.model("alibaba", UserSchema)
@@ -116,6 +122,46 @@ router.route('/process/adduser').post(function(req, res) {
     }
     res.redirect('/html/start.html')
 })
+
+router.route("/process/rank").get(function(req, res) {
+    console.log('/process/rank 호출됨')
+    
+    if(database) {
+        UserModel.findByCoin(function(err, results) {
+            if(err) {
+                console.error('사용자 리스트 조회 중 오류 발생 : ' + err.stack)
+                return
+            }
+            if(results) {
+                console.dir(results)
+                var rankingResult = [];
+                for(var i = 0; i<results.length; i++) {
+                    var curName = results[i]._doc.name
+                    var curCoin = results[i]._doc.coin
+                    rankingResult.push({"name": curName, "coin": curCoin})
+                }
+                res.render('../html/ranking.ejs', {'rankingResult' : rankingResult}, function(err ,html){
+                    if (err){
+                        console.log("랭킹 실패")
+                        console.log(err)
+                        return
+                    }
+                    console.log("랭킹 성공")
+                    res.end(html) // 응답 종료
+                })
+            }
+            else {
+                console.log("사용자 리스트 조회 실패");
+            }
+        })
+    }
+    else {
+        res.writeHead('200', {'Content-Type': 'text/html; charset=utf8'})
+        res.write('<h2>데이터베이스 연결 실패</h2>')
+        res.end();
+    }
+})
+
 router.route('/').get(function(req, res) {
     res.redirect('/html/main.html');
 })

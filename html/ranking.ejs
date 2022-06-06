@@ -93,19 +93,16 @@
                     <th>name</th>
                     <th>score</th>
                 </tr>
-                <tr>
-                    <td>1</td>
-                    <td>hajin</td>
-                    <td>30  <img src="../image/coin.png"/></td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>chaewon</td>
-                    <td>20  <img src="../image/coin.png"/></td>
-                </tr>
-
+                <% for(var i = 0; i < rankingResult.length; i++) {%>
+                    <tr>
+                        <td><%= i+1 %></td>
+                        <td><%= rankingResult[i].name %></td>
+                        <td><%= rankingResult[i].coin %>  <img src="../image/coin.png"/></td>
+                    </tr>
+                <% } %>
             </table>
         </div>
         
     </body>
+    <script src="../js/ranking.js"></script>
 </html>
