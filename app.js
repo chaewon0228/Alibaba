@@ -27,7 +27,7 @@ var UserSchema;
 var UserModel;
 
 var spell_1 = "열려라"
-var spell_2 = ['삼성', 'LG']
+var spell_2 = ['삼성', '엘지']
 var spell_3 = ['냉장고', '건조기', '에어컨', '세탁기', '공기청정기', "가습기", "무선청소기"]
 
 function connectDB() {
