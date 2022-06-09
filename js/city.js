@@ -51,7 +51,7 @@ let source;
 
 let getkey = false;
 // 타일 크기
-let tileW = 50, tileH = 50;
+let tileW = 70, tileH = 70;
 // 맵 크기
 let mapW = 37, mapH = 34;
 // 프레임 속도
@@ -474,12 +474,15 @@ Character.prototype.moveDirection = function (d, t) {
 };
 
 Character.prototype.get = function () {
-	if (this.tileTo[0] != this.tileFrom[0] || this.tileTo[1] != this.tileFrom[1]) {
-		return false;
-	}
+	// 캐릭터가 서 있는 타일의 coinStack에 대한 참조
 	let is = mapTileData.map[toIndex(this.tileFrom[0], this.tileFrom[1])].coinStack;
 
+	if(is != null) {
+		mapTileData.map[toIndex(this.tileFrom[0], this.tileFrom[1])].itemStack = null;
+	}
+
 	coin_cnt++;
+	console.log('코인 획득✨');
 	console.log('코인 개수 : ' + coin_cnt);
 
 	return true;
@@ -834,7 +837,7 @@ function drawGame() {
 
 	// 배경색 (바다)
 	context.fillStyle = "#0080ff";
-	// 그리기를 시작하기 전 0,0에서 캔버스 너비, 뷰포트 화며 ㄴ속성에서 가져온 높이까지
+	// 그리기를 시작하기 전 0,0에서 캔버스 너비, 뷰포트 화면 속성에서 가져온 높이까지
 	// 위에 색으로 캔버스를 덮어서 마지막 프레임에서 캔버스의 모든 항목을 지움
 	context.fillRect(0, 0, viewport.screen[0], viewport.screen[1]);
 
@@ -882,12 +885,13 @@ function drawGame() {
 				if (o != null && objectTypes[o.type].zIndex == z) {
 					let ot = objectTypes[o.type];
 
+					// 장애물 그리기
 					context.drawImage(tileset,
 						ot.sprite[0].x, ot.sprite[0].y,
 						ot.sprite[0].w, ot.sprite[0].h,
 						viewport.offset[0] + (x * tileW) + ot.offset[0],
 						viewport.offset[1] + (y * tileH) + ot.offset[1],
-						50, 50);
+						tileW, tileH);
 				}
 
 
