@@ -62,7 +62,7 @@
                 font-size: 50px;
                 margin-top: 50px;
                 color: white;
-                line-height: 100px;
+                line-height: 120px;
             }
             table th {
                 font-size: 70px;
@@ -84,7 +84,7 @@
         <title>열려라 참깨!</title>
     </head>
     <body>
-        <a class="start" href="main.html">HOME</a>
+        <a class="start" href="../html/main.html">HOME</a>
         <h2>LEADERBOARD</h2>
         <div class="rank-container">
             <table id="rank-table" class="rank-table">
@@ -93,17 +93,13 @@
                     <th>name</th>
                     <th>score</th>
                 </tr>
-                <tr>
-                    <td>1</td>
-                    <td>hajin</td>
-                    <td>30  <img src="../image/coin.png"/></td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>chaewon</td>
-                    <td>20  <img src="../image/coin.png"/></td>
-                </tr>
-
+                <% for(var i = 0; i < rankingResult.length; i++) {%>
+                    <tr>
+                        <td><%= i+1 %></td>
+                        <td><%= rankingResult[i].name %></td>
+                        <td><%= rankingResult[i].coin %>  <img src="../image/coin.png"/></td>
+                    </tr>
+                <% } %>
             </table>
         </div>
         

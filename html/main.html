@@ -36,15 +36,14 @@
             .button-container button {
                 display: block;
                 margin-bottom: 50px;
-                font-size: 40px;
+                font-size: 50px;
                 padding: 20px;
                 text-align: center;
-                color: white;
+                color: black;
                 border: none;
-                border-radius: 10px;
             }
             .button-container button:hover {
-                font-size: 50px;
+                font-size: 55px;
             }
             .start {
                 background-color: green;
@@ -58,6 +57,13 @@
             .button-container a {
                 text-decoration: none;
             }
+            button {
+                width: 200px;
+                height: 98px;
+                background-image: url('../image/money.jpg');
+                background-size: cover;
+                text-shadow: -1px 0 green, 0 1px green, 1px 0 green, 0 -1px green;
+            }
         </style>
         <meta charset="utf-8">
         <title>열려라 참깨!</title>
@@ -66,7 +72,7 @@
         <img class="name" src="../image/logo.png" />
         <div class="button-container">
             <a href="start.html"><button class="start">START</button></a>
-            <a href="ranking.html"><button class="rank">RANK</button></a>
+            <a href="../process/rank"><button class="rank">RANK</button></a>
             <a href="script.html"><button class="script">SCRIPT</button></a>
         </div>
         <form action="/process/adduser" method="post">
