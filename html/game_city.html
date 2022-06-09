@@ -88,6 +88,14 @@
 		<h3>🌟 보물상자를 먼저 찾아라 🌟</h3>
 	</div>
 
+	<div id="inputName" class="modal">
+		<h3>이름을 입력해주세요!</h3>
+		<form action="/process/adduser" method="post">
+			<input type="text" name="name">
+			<input type="submit" value="전송">
+		</form>
+	</div>
+
 	<p class="gameover" id="gameover">GAME OVER</p>
 	<div class="container" id="container">
 		<button class="replay" onclick="replay()">replay</button>
