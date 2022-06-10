@@ -78,7 +78,10 @@ function rideboat() {
 	// 배 닿았을 때 처리
 	console.log("ride boat!");
 	if (getkey == true) {
-		location.href = "../html/end_city.html";
+		$(document).off("keydown");
+		$(document).off("keyup");
+		$('#inputName').modal('show');
+		//location.href = "../html/end_city.html";
 	}
 	else {
 		$('#noKey').modal('show');
@@ -589,6 +592,7 @@ let coll;
 // 페이지 로드가 완료되면 실행할 함수
 // ( canvas에 대한 그리기 컨텍스트를 context 변수에 할당 / 글꼴 )
 window.onload = function () {
+
 	context = document.getElementById('game').getContext("2d");
 	requestAnimationFrame(drawGame);
 	context.font = "bold 10pt sans-serif";

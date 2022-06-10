@@ -31,7 +31,7 @@ var spell_2 = ['삼성', '엘지']
 var spell_3 = ['냉장고', '건조기', '에어컨', '세탁기', '공기청정기', "가습기", "무선청소기"]
 
 function connectDB() {
-    var databaseUrl = 'mongodb://127.0.0.1:27017/local'
+    var databaseUrl = 'mongodb+srv://akwls:rlagkwls1004@cluster0.9dmny.mongodb.net/alibaba'
 
     console.log("데이터베이스 연결을 시도합니다.");
     mongoose.Promise = global.Promise;
@@ -104,6 +104,8 @@ var addUser = function(database, name, callback) {
 
 }
 
+// 데이터베이스에 사용자가 있으면 코인 update
+// 데이터베이스에 사용자가 없으면 insert
 router.route('/process/adduser').post(function(req, res) {
     var username = req.body.username || req.query.username;
 
