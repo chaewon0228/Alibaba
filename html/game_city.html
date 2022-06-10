@@ -68,6 +68,21 @@
 			text-align: center;
 			padding: 10px;
 		}
+		.inputName .input_name {
+			border: 1px black solid;
+			padding: 10px;
+			font-size: 20px;
+		}
+		.inputName .input_submit {
+			padding: 15px;
+			background-color: black;
+			color: white;
+			border-radius: 10px;
+			font-size: 20px;
+		}
+		.inputName form {
+			text-align: center;
+		}
 	</style>
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
@@ -88,11 +103,11 @@
 		<h3>🌟 보물상자를 먼저 찾아라 🌟</h3>
 	</div>
 
-	<div id="inputName" class="modal">
+	<div id="inputName" class="modal inputName">
 		<h3>이름을 입력해주세요!</h3>
 		<form action="/process/adduser" method="post">
-			<input type="text" name="name">
-			<input type="submit" value="전송">
+			<input type="text" name="name" class="input_name">
+			<input type="submit" value="전송" class="input_submit">
 		</form>
 	</div>
 
