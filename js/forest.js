@@ -703,7 +703,7 @@ function drawGame() {
 						ot.sprite[0].w, ot.sprite[0].h,
 						viewport.offset[0] + (x * tileW) + ot.offset[0],
 						viewport.offset[1] + (y * tileH) + ot.offset[1],
-						50, 50);
+						tileW - 10, tileH - 10);
 				}
 
 
