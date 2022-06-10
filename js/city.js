@@ -295,8 +295,8 @@ function Character() {
 	// "
 
 	this.timeMoved = 0;       // 이동 시작 시간(밀리초)
-	this.dimensions = [44, 44]; // 캐릭터 치수(픽셀 단위) 저장
-	this.position = [45, 45]; // 캔버스에서 캐릭터 실제? 위치
+	this.dimensions = [64, 64]; // 캐릭터 치수(픽셀 단위) 저장
+	this.position = [65, 65]; // 캔버스에서 캐릭터 실제? 위치
 
 	// 타일 속도 조절
 	this.delayMove = {};
@@ -541,7 +541,7 @@ class Monster {
 						this.position[0] += 3;
 				}
 				this.distance--;
-				context.drawImage(bat, 30, this.isFly * 110 + 30, 50, 50, this.position[0], this.position[1], tileW + 5, tileH + 5);
+				context.drawImage(bat, 30, this.isFly * 110 + 30, 60, 60, this.position[0], this.position[1], tileW + 5, tileH + 5);
 			}
 			else {
 				this.distance = Math.floor(Math.random() * 150) + 30;
@@ -552,7 +552,7 @@ class Monster {
 					case 2: this.direction = directions.left; break;
 					case 3: this.direction = directions.right; break;
 				}
-				context.drawImage(bat, 0, this.isFly * 50, 50, 50, this.position[0], this.position[1], tileW + 5, tileH + 5);
+				context.drawImage(bat, 0, this.isFly * 50, 60, 60, this.position[0], this.position[1], tileW + 5, tileH + 5);
 			}
 			//clearTimeout(this.flying);
 			this.flying = setTimeout(() => {
