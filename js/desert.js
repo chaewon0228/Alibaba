@@ -832,5 +832,5 @@ function replay() {
 	location.href = "../html/game_desert.html";
 }
 function back() {
-	location.href = "../html/main.html";
+	location.href = "../html/map.html";
 }

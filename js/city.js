@@ -477,17 +477,14 @@ Character.prototype.moveDirection = function (d, t) {
 };
 
 Character.prototype.get = function () {
-	// 캐릭터가 서 있는 타일의 coinStack에 대한 참조
+	// 캐릭터가 서 있는 타일의 placedCoin에 대한 참조
 	let is = mapTileData.map[toIndex(this.tileFrom[0], this.tileFrom[1])].coinStack;
 
 	if(is != null) {
-		mapTileData.map[toIndex(this.tileFrom[0], this.tileFrom[1])].itemStack = null;
+		mapTileData.map[toIndex(this.tileFrom[0], this.tileFrom[1])].coinStack = null;
+		coin_cnt++;
+		console.log('코인 획득✨');
 	}
-
-	coin_cnt++;
-	console.log('코인 획득✨');
-	console.log('코인 개수 : ' + coin_cnt);
-
 	return true;
 }
 
@@ -770,9 +767,18 @@ window.onload = function () {
 	keybox.placeAt(21, 22);
 
 	// coin 생성 및 위치
-	for(let i = 3; i < 8; i++) {
-		let c = new placedCoin(1, 1);
-		c.placeAt(i, 5);
+	let c;
+	let rand1, rand2;
+	for(let i = 0; i < 50; i++) {
+		c = new placedCoin(1, 1);
+		rand1 = Math.floor((Math.random() * ((mapW - 4) - 3)) + 3);
+		rand2 = Math.floor((Math.random() * ((mapH) - 8)) + 8);
+
+		if(rand2 == 12 || rand1 == 9 || rand1 == 21){
+			rand1++;
+			rand2 += 2;
+		} 
+		c.placeAt(rand1, rand2);
 	}
 };
 
@@ -831,6 +837,7 @@ function drawGame() {
 		else if (keysDown[83] && player.canMoveDown()) { player.moveDown(currentFrameTime); }
 		else if (keysDown[65] && player.canMoveLeft()) { player.moveLeft(currentFrameTime); }
 		else if (keysDown[68] && player.canMoveRight()) { player.moveRight(currentFrameTime); }
+		player.get();
 	}
 
 	// drawgame 함수에서는 이동이 처리되면 뷰포트를 업데이트함
@@ -877,7 +884,7 @@ function drawGame() {
 							sprite[0].w, sprite[0].h,
 							viewport.offset[0] + (x*tileW) + coinType[isCoin.type].offset[0],
 							viewport.offset[1] + (y*tileH) + coinType[isCoin.type].offset[1],
-							sprite[0].w + 23, sprite[0].h + 25);
+							sprite[0].w + 31, sprite[0].h + 33);
 							
 					}
 				}
@@ -1070,5 +1077,5 @@ function replay() {
 	location.href = "../html/game_city.html";
 }
 function back() {
-	location.href = "../html/main.html";
+	location.href = "../html/map.html";
 }
