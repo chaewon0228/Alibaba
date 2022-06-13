@@ -78,12 +78,14 @@ function rideboat() {
 	// 배 닿았을 때 처리
 	console.log("ride boat!");
 	if (getkey == true) {
+		loadAudio(11);
 		$(document).off("keydown");
 		$(document).off("keyup");
 		$('#inputName').modal('show');
 		//location.href = "../html/end_city.html";
 	}
 	else {
+		loadAudio(10);
 		$('#noKey').modal('show');
 	}
 }
@@ -481,6 +483,7 @@ Character.prototype.get = function () {
 	let is = mapTileData.map[toIndex(this.tileFrom[0], this.tileFrom[1])].coinStack;
 
 	if(is != null) {
+		loadAudio(3)
 		mapTileData.map[toIndex(this.tileFrom[0], this.tileFrom[1])].coinStack = null;
 		coin_cnt++;
 		console.log('코인 획득✨');
@@ -596,7 +599,7 @@ window.onload = function () {
 
 	// 사운드 처리
 	let body = document.querySelector("body");
-	for (let i = 0; i < 10; i++) {
+	for (let i = 0; i < 15; i++) {
 		let au = new Audio();
 		audio.push(au);
 	}
@@ -607,6 +610,9 @@ window.onload = function () {
 	audio[4].src = '../sound/item.wav';
 	audio[2].src = '../sound/laugh.ogg';
 	audio[5].src = '../sound/gameover.wav';
+	audio[3].src = '../sound/get_coin.ogg';
+	audio[10].src = '../sound/error.mp3';
+	audio[11].src = '../sound/success.mp3';
 	window.addEventListener("keydown", function (e) {
 		if (e.keyCode >= 65 && e.keyCode <= 87) { keysDown[e.keyCode] = true; }
 		if (isMusinPlay == 0) {
