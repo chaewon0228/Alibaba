@@ -1057,10 +1057,10 @@ function gameover() {
 	return;
 }
 
-let weaponSize = [30, 70];
+let weaponSize = [40, 75];
 let weapon = {
 	position: [0, 0],
-	size: 30
+	size: weaponSize[0]
 }
 function loadAudio(id) {
 	audio[id].load();
