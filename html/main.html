@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                font-family: 'arcade';
+            }
+            @font-face {
+                font-family: 'arcade';
+                src: url('../font/arcade.ttf') format('truetype');
+                font-weight: normal;
+                font-style: normal; 
+            }
+            body {
+                background-image: url("../image/dessert1.png");
+                background-repeat: no-repeat;
+                background-size: cover;
+                display: flex;
+                justify-content: center;
+                flex-direction: column;
+                align-items: center;
+            }
+            .name {
+                width: 30%;
+                margin-top: 50px;
+                box-sizing: block;
+            }
+            .button-container {
+                margin-top: 100px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .button-container button {
+                display: block;
+                margin-bottom: 50px;
+                font-size: 50px;
+                padding: 20px;
+                text-align: center;
+                color: black;
+                border: none;
+            }
+            .button-container button:hover {
+                font-size: 55px;
+            }
+            .start {
+                background-color: green;
+            }
+            .rank {
+                background-color: #FFD700;
+            }
+            .script {
+                background-color: gray;
+            }
+            .button-container a {
+                text-decoration: none;
+            }
+            button {
+                width: 200px;
+                height: 98px;
+                background-image: url('../image/money.jpg');
+                background-size: cover;
+                text-shadow: -1px 0 green, 0 1px green, 1px 0 green, 0 -1px green;
+            }
+        </style>
+        <meta charset="utf-8">
+        <title>열려라 참깨!</title>
+    </head>
+    <body>
+        <img class="name" src="../image/logo.png" />
+        <div class="button-container">
+            <a href="start.html"><button class="start">START</button></a>
+            <a href="../process/rank"><button class="rank">RANK</button></a>
+            <a href="script.html"><button class="script">SCRIPT</button></a>
+        </div>
+        <form action="/process/adduser" method="post">
+            <input type="text" name="username">
+            <input type="submit" value="전송">
+        </form>
+        <audio loop id="audio">
+            <source id="audioSource">
+          Your browser does not support the audio element.
+          </audio>
+          <script>
+                document.addEventListener("click", function(event) {
+                const audio = document.querySelector('#audio');
+                const btn = document.getElementById('audioButton');
+
+                function loadAudio() {
+                    let source = document.querySelector("#audioSource");
+                    source.src = '../sound/egypt.mp3';
+                    audio.load();
+                    playAudio();
+                }
+
+                function playAudio() {
+                    audio.volume = 0.2;
+                    audio.loop = true;
+                    audio.play();
+                }
+
+                loadAudio();
+
+
+            })
+          </script>
+    </body>
+</html>

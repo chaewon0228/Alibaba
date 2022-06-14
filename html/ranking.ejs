@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+            @font-face {
+                font-family: 'arcade';
+                src: url('../font/arcade.ttf') format('truetype');
+                font-weight: normal;
+                font-style: normal; 
+            }
+            body {
+                background-image: url("../image/dessert1.png");
+                background-repeat: no-repeat;
+                background-size: cover;
+                display: flex;
+                justify-content: center;
+                font-family: 'arcade';
+            }
+            .start {
+                color: #7B6637;
+                margin: 20px;
+                position: fixed;
+                right: 0px;
+                font-size: 50px;
+            }
+            .start:hover {
+                color: black;
+                font-size: 55px;
+            }
+            .image {
+                position: fixed;
+                margin: 20px auto;
+                top: 200px;
+            }
+            h2 {
+                position: fixed;
+                top: 50px;
+                width: 100%;
+                text-align: center;
+                font-size: 150px;
+                color: #FFD700;
+                text-decoration: double;
+                text-shadow: 7px 7px black;
+            }
+            .rank-container {
+                position: fixed;
+                top: 200px;
+                width: 70%;
+                height: 80vh;
+                background: url("../image/rankboard.png");
+                background-size: 100% 100%;
+                background-position: center;
+                text-align: center;
+                padding: 30px;
+            }
+            table {
+                width: 90%;
+                font-size: 50px;
+                margin-top: 50px;
+                color: white;
+                line-height: 120px;
+            }
+            table th {
+                font-size: 70px;
+            }
+            td:nth-child(3n) {
+                width: 700px;
+                text-align: right;
+            }
+            th:nth-child(3) {
+                width: 700px;
+                text-align: right;
+            }
+            table img {
+                height: 50px;
+                width: 50px;
+            }
+        </style>
+        <meta charset="utf-8">
+        <title>열려라 참깨!</title>
+    </head>
+    <body>
+        <a class="start" href="../html/main.html">HOME</a>
+        <h2>LEADERBOARD</h2>
+        <div class="rank-container">
+            <table id="rank-table" class="rank-table">
+                <tr>
+                    <th>rank</th>
+                    <th>name</th>
+                    <th>score</th>
+                </tr>
+                <% for(var i = 0; i < rankingResult.length; i++) {%>
+                    <tr>
+                        <td><%= i+1 %></td>
+                        <td><%= rankingResult[i].name %></td>
+                        <td><%= rankingResult[i].coin %>  <img src="../image/coin.png"/></td>
+                    </tr>
+                <% } %>
+            </table>
+        </div>
+        
+    </body>
+</html>
