@@ -8,10 +8,12 @@
                 background-image: url(../image/test3.png);
                 background-repeat: no-repeat;
                 background-size: cover;
+                display: flex;
             }
             button {
                 background-color: transparent;
                 border: 0px;
+                margin: 30px;
             }
             button img:hover {
                 width: 600px;
@@ -19,35 +21,36 @@
             button img {
                 width: 500px;
             }
-            .island1 {
-                position: fixed;
-                top: 50px;
-                left: 300px;
-            }
-            .island2 {
-                position: fixed;
-                top: 50px;
-                right: 300px;
-            }
-            .island3 {
-                position: fixed;
-                bottom: 50px;
-                left: 600px;
-            }
+            
             .img1 {
                 opacity: 0.5;
+            }
+            .container {
+                margin-top: 160px;
+                width: 100%;
+                display: flex;
+                flex-wrap: wrap;
+                margin-bottom: 300px;
+            align-items: center;
+            justify-content: center;
+            }
+            .island {
+                width: 30%;
             }
         </style>
     </head>
     <body>
-        <button class="island island1" onclick="location.href='../html/start_city.html';">
-            <img class="img1" src="../image/island_City.png">
-        </button>
-        <button class="island island2" onclick="location.href='../html/start_desert.html';">
-            <img src="../image/island_desert.png">
-        </button>
-        <button class="island island3" onclick="location.href='../html/start_forest.html';">
-            <img src="../image/island_Forest.png">
-        </button>
+        <div class="container">
+            <button class="island island1" onclick="location.href='../html/start_city.html';">
+                <img class="img1" src="../image/island_City.png">
+            </button>
+            <button class="island island2" onclick="location.href='../html/start_desert.html';">
+                <img src="../image/island_desert.png">
+            </button>
+            <button class="island island3" onclick="location.href='../html/start_forest.html';">
+                <img src="../image/island_Forest.png">
+            </button>
+        </div>
+        
     </body>
 </html>
