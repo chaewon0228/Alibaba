@@ -18,6 +18,7 @@ app.use('/html', static(path.join(__dirname, 'html')))
 app.use('/image', static(path.join(__dirname, 'image')))
 app.use('/gif', static(path.join(__dirname, 'gif')))
 app.use('/font', static(path.join(__dirname, 'font')))
+app.use('/sound', static(path.join(__dirname, 'sound')))
 
 app.set('view engine', 'ejs');
 
