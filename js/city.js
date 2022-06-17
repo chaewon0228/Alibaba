@@ -51,7 +51,7 @@ let source;
 
 let getkey = false;
 // 타일 크기
-let tileW = 70, tileH = 70;
+let tileW = 100, tileH = 100;
 // 맵 크기
 let mapW = 37, mapH = 34;
 // 프레임 속도
@@ -67,7 +67,7 @@ function touchbox() {
 	console.log("boxbox!");
 	getkey = true;
 	loadAudio(4);
-
+	
 }
 function drawpath() {
 	gameMap[toIndex(33, 12)] = 5;
@@ -124,7 +124,7 @@ let coinType = {
 	1: {
 		name: "Coin",
 		sprite: [{x: 97, y: 32, w: 16, h: 16}],
-		offset: [10, 0]
+		offset: [20, 10]
 	}
 }
 function stack(id, ctc) {
@@ -299,9 +299,10 @@ function Character() {
 	this.tileTo = [5, 5];
 	// "
 
+	// 캐릭터 사이즈
 	this.timeMoved = 0;       // 이동 시작 시간(밀리초)
-	this.dimensions = [64, 64]; // 캐릭터 치수(픽셀 단위) 저장
-	this.position = [65, 65]; // 캔버스에서 캐릭터 실제? 위치
+	this.dimensions = [94, 94]; // 캐릭터 치수(픽셀 단위) 저장
+	this.position = [95, 95]; // 캔버스에서 캐릭터 실제? 위치
 
 	// 타일 속도 조절
 	this.delayMove = {};
@@ -584,7 +585,7 @@ setTimeout(() => {
 		monsters[i] = new Monster();
 	}
 	isMonsterShown = 1;
-}, 1500);
+}, 3000);
 
 let isWeaponShown;
 let coll;
@@ -594,6 +595,20 @@ let coll;
 window.onload = function () {
 
 	context = document.getElementById('game').getContext("2d");
+
+	// full screen인지 확인
+	$(window).resize(function () {
+		context = document.getElementById('game').getContext("2d");
+		
+        if ((screen.availHeight || screen.height - 30) <= window.innerHeight) {
+            console.log('Fullscreen');
+        }
+        else {
+            console.log('Not Fullscreen');
+			alert('🚨 전체화면[F11]로 실행해주세요 🚨');
+        }
+    });
+	
 	requestAnimationFrame(drawGame);
 	context.font = "bold 10pt sans-serif";
 
@@ -777,8 +792,8 @@ window.onload = function () {
 	let rand1, rand2;
 	for(let i = 0; i < 50; i++) {
 		c = new placedCoin(1, 1);
-		rand1 = Math.floor((Math.random() * ((mapW - 4) - 3)) + 3);
-		rand2 = Math.floor((Math.random() * ((mapH) - 8)) + 8);
+		rand1 = Math.floor((Math.random() * ((mapW - 10) - 3)) + 3);
+		rand2 = Math.floor((Math.random() * ((mapH - 10) - 8)) + 8);
 
 		if(rand2 == 12 || rand1 == 9 || rand1 == 21){
 			rand1++;
@@ -890,7 +905,7 @@ function drawGame() {
 							sprite[0].w, sprite[0].h,
 							viewport.offset[0] + (x*tileW) + coinType[isCoin.type].offset[0],
 							viewport.offset[1] + (y*tileH) + coinType[isCoin.type].offset[1],
-							sprite[0].w + 31, sprite[0].h + 33);
+							sprite[0].w + 50, sprite[0].h + 52);
 							
 					}
 				}
@@ -970,7 +985,7 @@ function drawGame() {
 					for (let i = 0; i < attackId; i++) {
 						clearTimeout(i);
 					}
-					attackId = setTimeout(() => { isAttackable = 1; }, 500);
+					attackId = setTimeout(() => { isAttackable = 1; }, 2500);
 					break;
 				}
 
@@ -986,7 +1001,7 @@ function drawGame() {
 	if (getkey == true) shadow *= 1.5;
 	for (let i = 0; i < viewport.screen[0]; i += 12) {
 		for (let j = 0; j < viewport.screen[1]; j += 12) {
-			let opacity = Math.min((Math.sqrt(Math.pow((i) - (viewport.offset[0] + player.position[0] + 8), 2) + Math.pow((j) - (viewport.offset[1] + player.position[1] + 8), 2)) - 50) / shadow, 1);
+			let opacity = Math.min((Math.sqrt(Math.pow((i) - (viewport.offset[0] + player.position[0] + 8), 2) + Math.pow((j) - (viewport.offset[1] + player.position[1] + 8), 2)) - (tileW * 2 + 50)) / shadow, 1);
 			context.fillStyle = "rgba(0,0,0," + opacity + ")";
 			context.fillRect(i, j, 12, 12);
 		}
@@ -1032,12 +1047,12 @@ function drawGame() {
 		coinsetLoaded = true;
 	}
 	coinset.src = coinsetURL;
-	context.drawImage(coinset, 1480, 18, 42, 47);
+	context.drawImage(coinset, screen.width - 100, 34, 62, 67);
 
 	context.textAlign = "left";
-	context.font = "30px malgun gothic"
+	context.font = "50px malgun gothic"
 	context.fillStyle = "#ffffff";
-	context.fillText(coin_cnt + " X ", 1420, 53);
+	context.fillText(coin_cnt + " X ", screen.width - 190, 89);
 
 	requestAnimationFrame(drawGame);
 }
