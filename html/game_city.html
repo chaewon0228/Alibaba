@@ -114,7 +114,7 @@
 
 <body>
 	<div id="wrapper">
-		 <canvas id="game" width="2560px" height="1440px"></canvas> 
+		 <canvas id="game" width="1800px" height="1000px"></canvas> 
 		<!-- <canvas id="game" width="1600px" height="1000px"></canvas> -->
 	</div>
 
@@ -126,6 +126,7 @@
 		<h3>이름을 입력해주세요!</h3>
 		<form action="/process/adduser" method="post">
 			<input type="text" name="name" class="input_name">
+			<input type="hidden" name="coin" id="input_coin">
 			<input type="submit" value="전송" class="input_submit">
 		</form>
 	</div>

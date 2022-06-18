@@ -72,7 +72,10 @@ function touchbox() {
 function touchcave() {
 	console.log("cave");
 	if (getkey == true) {
-		location.href = "../html/end_game.html";
+		$(document).off("keydown");
+		$(document).off("keyup");
+		$('#inputName').modal('show');
+		document.getElementById("input_coin").value = coin_cnt;
 	}
 	else{
 		$('#noKey').modal('show');
