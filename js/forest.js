@@ -50,7 +50,7 @@ let gameMap = [
 let mapTileData = new TileMap();
 
 // 타일 크기
-let tileW = 70, tileH = 70;
+let tileW = 100, tileH = 100;
 // 맵 크기
 let mapW = 45, mapH = 40;
 let getkey = false;
@@ -81,14 +81,22 @@ function rideboat() {
 
 	if (getkey == true) {
 		// 키가 있을 때 게임 종료
-		location.href = "../html/end_forest.html";
+		$(document).off("keydown");
+		$(document).off("keyup");
+		$('#inputName').modal('show');
+		document.getElementById("input_coin").value = coin_cnt;
+	}
+	else{
+		//loadAudio(10);
+		$('#noKey').modal('show');
 	}
 }
 
 let lives = 3;
+let coin_cnt = 0;
 
 let tileset = null;
-let tilesetURL = "../image/tile_forest.png";
+let tilesetURL = "../image/tile_forest_item.png";
 let tilesetLoaded = false;
 
 let objectCollision = {
@@ -126,6 +134,19 @@ let objectTypes = {
 		zIndex: 1
 	}
 };
+
+// coin item
+let coinType = {
+	1: {
+		name: "Coin",
+		sprite: [{x: 113, y: 33, w: 16, h: 16}],
+		offset: [15, 10]
+	}
+}
+function stack(id, ctc) {
+	this.type = id;
+	this.ctc = ctc;
+}
 
 function MapObject(nt) {
 	this.x = 0;
@@ -191,6 +212,7 @@ function Tile(tx, ty, tt) {
 	this.type = tt;
 	this.eventEnter = null;
 	this.object = null;
+	this.coinStack = null;
 }
 
 function TileMap() {
@@ -263,8 +285,8 @@ function Character() {
 	this.tileFrom = [5, 5];
 	this.tileTo = [5, 5];
 	this.timeMoved = 0;
-	this.dimensions = [64, 64];
-	this.position = [65, 65];
+	this.dimensions = [94, 94];
+	this.position = [95, 95];
 
 	this.delayMove = {};
 	this.delayMove[floorTypes.path] = 180;
@@ -401,6 +423,20 @@ Character.prototype.moveDirection = function (d, t) {
 	}
 };
 
+// coin 줍기
+Character.prototype.get = function () {
+	// 캐릭터가 서 있는 타일의 placedCoin에 대한 참조
+	let is = mapTileData.map[toIndex(this.tileFrom[0], this.tileFrom[1])].coinStack;
+
+	if(is != null) {
+		// loadAudio(3)
+		mapTileData.map[toIndex(this.tileFrom[0], this.tileFrom[1])].coinStack = null;
+		coin_cnt++;
+		console.log('코인 획득✨');
+	}
+	return true;
+}
+
 function toIndex(x, y) {
 	return ((y * mapW) + x);
 }
@@ -499,20 +535,23 @@ let coll;
 
 window.onload = function () {
 	context = document.getElementById('game').getContext("2d");
+
+	// full screen인지 확인
+	$(window).resize(function () {
+        if ((screen.availHeight || screen.height - 30) <= window.innerHeight) {
+            console.log('Fullscreen');
+        }
+        else {
+            console.log('Not Fullscreen');
+			alert('🚨 전체화면[F11]로 실행해주세요 🚨');
+        }
+    });
+
 	requestAnimationFrame(drawGame);
 	context.font = "bold 10pt sans-serif";
-	let body = document.querySelector("body");
 
-	window.addEventListener("keydown", function (e) {
-		if (e.keyCode >= 65 && e.keyCode <= 87) { keysDown[e.keyCode] = true; }
-		if (isMusinPlay == 0) {
-			loadAudio(9);
-			isMusinPlay = 1;
-		}
-	});
-	window.addEventListener("keyup", function (e) {
-		if (e.keyCode >= 65 && e.keyCode <= 87) { keysDown[e.keyCode] = false; }
-	});
+	let body = document.querySelector("body");
+	
 	for (let i = 0; i < 10; i++) {
 		let au = new Audio();
 		audio.push(au);
@@ -524,6 +563,17 @@ window.onload = function () {
 	audio[3].src = '../sound/break_rock.wav';
 	audio[2].src = '../sound/laugh.ogg';
 	audio[5].src = '../sound/gameover.wav';
+
+	window.addEventListener("keydown", function (e) {
+		if (e.keyCode >= 65 && e.keyCode <= 87) { keysDown[e.keyCode] = true; }
+		if (isMusinPlay == 0) {
+			loadAudio(9);
+			isMusinPlay = 1;
+		}
+	});
+	window.addEventListener("keyup", function (e) {
+		if (e.keyCode >= 65 && e.keyCode <= 87) { keysDown[e.keyCode] = false; }
+	});
 
 	body.addEventListener("click", function (e) {
 		for (let i = 0; i < weaponId; i++) {
@@ -647,7 +697,35 @@ window.onload = function () {
 	let keybox = new MapObject(4);
 	keybox.placeAt(29, 28);
 
+	// coin 생성 및 위치
+	let c;
+	let rand1, rand2;
+	for(let i = 0; i < 50; i++) {
+		c = new placedCoin(1, 1);
+
+		rand1 = Math.floor((Math.random() * ((mapW - 10) - 3)) + 3);
+		rand2 = Math.floor((Math.random() * ((mapH) - 8)) + 8);
+
+		c.placeAt(rand1, rand2);
+	}
 };
+
+// coin 배치 
+function placedCoin(id, ctc) {
+	this.type = id;
+	this.ctc = ctc; // coinType 항목 수
+	this.x = 0;
+	this.y = 0;
+}
+placedCoin.prototype.placeAt = function (nx, ny) {
+	if (mapTileData.map[toIndex(this.x, this.y)].coinStack == this) {
+		mapTileData.map[toIndex(this.x, this.y)].coinStack = null;
+	}
+	this.x = nx;
+	this.y = ny;
+
+	mapTileData.map[toIndex(nx, ny)].coinStack = this;
+}
 
 let isAttackable = 1;
 let attackId;
@@ -675,6 +753,7 @@ function drawGame() {
 		else if (keysDown[83] && player.canMoveDown()) { player.moveDown(currentFrameTime); }
 		else if (keysDown[65] && player.canMoveLeft()) { player.moveLeft(currentFrameTime); }
 		else if (keysDown[68] && player.canMoveRight()) { player.moveRight(currentFrameTime); }
+		player.get();
 	}
 
 	viewport.update(player.position[0] + (player.dimensions[0] / 2), player.position[1] + (player.dimensions[1] / 2));
@@ -694,6 +773,22 @@ function drawGame() {
 						viewport.offset[0] + (x * tileW), viewport.offset[1] + (y * tileH), tileW, tileH);
 
 				}
+				else if(z == 1){
+					let isCoin = mapTileData.map[toIndex(x, y)].coinStack;
+
+					if(isCoin != null){
+						let sprite = coinType[isCoin.type].sprite;
+
+						// coin 그리기
+						context.drawImage(tileset, sprite[0].x, sprite[0].y,
+							sprite[0].w, sprite[0].h,
+							viewport.offset[0] + (x*tileW) + coinType[isCoin.type].offset[0],
+							viewport.offset[1] + (y*tileH) + coinType[isCoin.type].offset[1],
+							sprite[0].w + 50, sprite[0].h + 54);
+							
+					}
+				}
+
 				let o = mapTileData.map[toIndex(x, y)].object;
 				if (o != null && objectTypes[o.type].zIndex == z) {
 					let ot = objectTypes[o.type];
@@ -763,7 +858,7 @@ function drawGame() {
 					for (let i = 0; i < attackId; i++) {
 						clearTimeout(i);
 					}
-					attackId = setTimeout(() => { isAttackable = 1; }, 500);
+					attackId = setTimeout(() => { isAttackable = 1; }, 2500);
 					break;
 				}
 
@@ -779,7 +874,7 @@ function drawGame() {
 	if (getkey == true) shadow *= 1.5;
 	for (let i = 0; i < viewport.screen[0]; i += 12) {
 		for (let j = 0; j < viewport.screen[1]; j += 12) {
-			let opacity = Math.min((Math.sqrt(Math.pow((i) - (viewport.offset[0] + player.position[0] + 8), 2) + Math.pow((j) - (viewport.offset[1] + player.position[1] + 8), 2)) - 50) / shadow, 1);
+			let opacity = Math.min((Math.sqrt(Math.pow((i) - (viewport.offset[0] + player.position[0] + 8), 2) + Math.pow((j) - (viewport.offset[1] + player.position[1] + 8), 2)) - (tileW * 2 + 50)) / shadow, 1);
 			context.fillStyle = "rgba(0,0,0," + opacity + ")";
 			context.fillRect(i, j, 12, 12);
 		}
@@ -810,7 +905,22 @@ function drawGame() {
 	if (getkey == true) text();
 	if (lives <= 0) { gameover(); return; }
 
+	// coin 그리기
+	let coinset = null;
+	let coinsetURL = "../image/coin.png";
+	let coinsetLoaded = false;
 
+	coinset = new Image();
+	coinset.onload = function () {
+		coinsetLoaded = true;
+	}
+	coinset.src = coinsetURL;
+	context.drawImage(coinset, screen.width - 100, 34, 62, 67);
+
+	context.textAlign = "left";
+	context.font = "50px malgun gothic"
+	context.fillStyle = "#ffffff";
+	context.fillText(coin_cnt + " X ", screen.width - 190, 89);
 
 	requestAnimationFrame(drawGame);
 }
