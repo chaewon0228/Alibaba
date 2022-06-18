@@ -82,6 +82,7 @@ function rideboat() {
 		$(document).off("keydown");
 		$(document).off("keyup");
 		$('#inputName').modal('show');
+		document.getElementById("input_coin").value = coin_cnt;
 		//location.href = "../html/end_city.html";
 	}
 	else {

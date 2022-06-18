@@ -64,7 +64,7 @@ function createUserSchema() {
     console.log("UserSchema 정의함")
 
     UserSchema.static('findById', function(id, callback) {
-        return this.find({id: id}, callback)
+        return this.find({name: id}, callback)
     })
     UserSchema.static('findAll', function(callback) {
         return this.find({}, callback)
@@ -73,13 +73,10 @@ function createUserSchema() {
         return this.find({sort: {"coin": -1}, "limit": 5}, callback)
     })
 
-    UserModel = mongoose.model("alibaba", UserSchema)
-    console.log("users 정의함")
+    UserModel = mongoose.model("alibabas", UserSchema)
+    console.log("alibabas 정의함")
 }
 
-// createUser
-// authUser
-// createSpell
 
 function createSpell() {
     var second = spell_2[Math.round(Math.random())]
@@ -87,13 +84,13 @@ function createSpell() {
     return spell_1 + " " + second + " " + third;
 }
 
-var addUser = function(database, name, callback) {
+var addUser = function(database, name, coin, callback) {
     console.log('addUser 호출됨 : ' + name)
 
     var createdSpell = createSpell();
-    var user = new UserModel({'name': name, 'random_spell': createdSpell, 'current_step' : 1, 'coin': 0})
+    var user = new UserModel({'name': name, 'random_spell': createdSpell, 'current_step' : 1, 'coin': coin})
 
-    
+
     user.save(function(err, addedUser) {
         if(err) {
             callback(err, null)
@@ -105,23 +102,63 @@ var addUser = function(database, name, callback) {
 
 }
 
-// 데이터베이스에 사용자가 있으면 코인 update
-// 데이터베이스에 사용자가 없으면 insert
+var updateUser = function(database, name, oldCoin, coin, callback) {
+    console.log("updateUser 호출 됨 : " + name + coin)
+    console.log("기존 코인" + oldCoin)
+
+    UserModel.findOneAndUpdate({name: name}, {coin: oldCoin+coin}, function(err, updatedUser) {
+        if(err) {
+            callback(err, null)
+            return
+        }
+        console.log('사용자 coin 업데이트함')
+        callback(null, updatedUser)
+    })
+}
+
 router.route('/process/adduser').post(function(req, res) {
-    var username = req.body.username || req.query.username;
+    var username = req.body.name || req.query.name;
+    var coinCount = req.body.coin || req.query.coin;
 
     if(database) {
-        addUser(database, username, function(err, result) {
+        UserModel.findById(username, function(err, results) {
             if(err) {
                 throw err;
+                return;
             }
-            if(result) {
-                console.log("사용자 추가 성공")
+            if(results.length == 0) {
+                addUser(database, username, coinCount, function(err, result) {
+                    if(err) {
+                        throw err;
+                    }
+                    if(result) {
+                        console.log("사용자 추가 성공")
+                    }
+                    else {
+                        console.log("사용자 추가 실패")
+                    }
+                })
             }
-            else {
-                console.log("사용자 추가 실패")
+            else if(results.length > 1) {
+                console.log("중복된 이름입니다.")
+                return;
             }
+            else if(results.length == 1) {
+               updateUser(database, username, results[0].coin, coinCount, function(err, result) {
+                    if(err) {
+                        throw err;
+                    }
+                    if(result) {
+                        console.log('사용자 업데이트 성공')
+                    }
+                    else {
+                        console.log('사용자 업데이트 실패')
+                    }
+               })
+            }
+            
         })
+        
     }
     res.redirect('/html/start.html')
 })

@@ -81,7 +81,10 @@ function rideboat() {
 
 	if (getkey == true) {
 		// 키가 있을 때 게임 종료
-		location.href = "../html/end_forest.html";
+		$(document).off("keydown");
+		$(document).off("keyup");
+		$('#inputName').modal('show');
+		document.getElementById("input_coin").value = coin_cnt;
 	}
 	else{
 		//loadAudio(10);
