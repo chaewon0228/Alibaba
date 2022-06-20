@@ -72,12 +72,14 @@ function touchbox() {
 function touchcave() {
 	console.log("cave");
 	if (getkey == true) {
+		loadAudio(8);
 		$(document).off("keydown");
 		$(document).off("keyup");
 		$('#inputName').modal('show');
 		document.getElementById("input_coin").value = coin_cnt;
 	}
 	else{
+		loadAudio(7);
 		$('#noKey').modal('show');
 	}
 }
@@ -423,6 +425,7 @@ Character.prototype.get = function () {
 		loadAudio(3)
 		mapTileData.map[toIndex(this.tileFrom[0], this.tileFrom[1])].coinStack = null;
 		coin_cnt++;
+		loadAudio(6);
 		console.log('코인 획득✨');
 	}
 	return true;
@@ -566,6 +569,9 @@ window.onload = function () {
 	audio[4].src = '../sound/item.wav';
 	audio[2].src = '../sound/laugh.ogg';
 	audio[5].src = '../sound/gameover.wav';
+	audio[6].src = '../sound/get_coin.ogg';
+	audio[7].src = '../sound/error.mp3';
+	audio[8].src = '../sound/success.mp3';
 
 	body.addEventListener("click", function (e) {
 		for (let i = 0; i < weaponId; i++) {
