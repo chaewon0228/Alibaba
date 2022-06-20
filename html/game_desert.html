@@ -10,6 +10,8 @@
             margin: 0;
             padding: 0;
 			cursor: crosshair;
+			overflow: hidden;
+			display: block;
 		}
 		@font-face {
                 font-family: 'arcade';
@@ -98,8 +100,7 @@
 </head>
 <body style="overflow: hidden;">
 	<div id = "wrapper">
-		<canvas id="game" width="2560px" height="1440px"></canvas> 
-		<!-- <canvas id="game" width="1600px" height="1000px"></canvas> -->
+		<canvas id="game"></canvas>
 	</div>
 
 	<div id="noKey" class="modal">
