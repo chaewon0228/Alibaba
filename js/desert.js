@@ -57,6 +57,7 @@ let tileW = 100, tileH = 100;
 let mapW = 40, mapH = 40;
 let getkey = false;
 let currentSecond = 0, frameCount = 0, framesLastSecond = 0, lastFrameTime = 0;
+let min_countDown = "", sec_countDown = "", time = 150, x;
 
 let tileEvents = {
 	550: touchbox,
@@ -423,7 +424,7 @@ Character.prototype.get = function () {
 		loadAudio(3)
 		mapTileData.map[toIndex(this.tileFrom[0], this.tileFrom[1])].coinStack = null;
 		coin_cnt++;
-		console.log('코인 획득✨');
+
 	}
 	return true;
 }
@@ -527,6 +528,8 @@ let coll;
 
 window.onload = function () {
 	context = document.getElementById('game').getContext("2d");
+	document.getElementById('game').width = window.innerWidth;
+	document.getElementById('game').height =  window.innerHeight;
 
 	// full screen인지 확인
 	$(window).resize(function () {
@@ -568,9 +571,9 @@ window.onload = function () {
 	audio[5].src = '../sound/gameover.wav';
 
 	body.addEventListener("click", function (e) {
-		for (let i = 0; i < weaponId; i++) {
-			clearTimeout(i);
-		}
+		// for (let i = 0; i < weaponId; i++) {
+		// 	clearTimeout(i);
+		// }
 		clickPosition[0] = e.screenX;
 		clickPosition[1] = e.screenY;
 		weapon.size = weaponSize[1];
@@ -600,7 +603,7 @@ window.onload = function () {
 		}, 500);
 	});
 
-	viewport.screen = [document.getElementById('game').width, document.getElementById('game').height];
+	viewport.screen = [window.innerWidth, window.innerHeight];
 
 	tileset = new Image();
 	tileset.onload = function () { tilesetLoaded = true; };
@@ -678,7 +681,7 @@ window.onload = function () {
 
 		c.placeAt(rand1, rand2);
 	}
-
+	timerCount();
 };
 
 // coin 배치 
@@ -703,6 +706,12 @@ let attackId;
 let target = null;
 let isMusinPlay = 0;
 let shadow = 200;
+
+let coinset = null;
+let coinsetURL = "../image/coin.png";
+let coinsetLoaded = false;
+
+let width = window.innerWidth;
 
 function drawGame() {
 
@@ -830,9 +839,9 @@ function drawGame() {
 					lives--;
 					loadAudio(2);
 					console.log(lives);
-					for (let i = 0; i < attackId; i++) {
-						clearTimeout(i);
-					}
+					// for (let i = 0; i < attackId; i++) {
+					// 	clearTimeout(i);
+					// }
 					attackId = setTimeout(() => { isAttackable = 1; }, 2500);
 					break;
 				}
@@ -882,23 +891,46 @@ function drawGame() {
 	
 
 	// coin 그리기
-	let coinset = null;
-	let coinsetURL = "../image/coin.png";
-	let coinsetLoaded = false;
+	
 
 	coinset = new Image();
 	coinset.onload = function () {
 		coinsetLoaded = true;
 	}
 	coinset.src = coinsetURL;
-	context.drawImage(coinset, screen.width - 100, 34, 62, 67);
+	context.drawImage(coinset, viewport.screen[0] - 120, 36, 62, 67);
 
-	context.textAlign = "left";
+	context.textAlign = "right";
 	context.font = "50px malgun gothic"
 	context.fillStyle = "#ffffff";
-	context.fillText(coin_cnt + " X ", screen.width - 190, 89);
+	context.fillText(coin_cnt + " X ", viewport.screen[0] - 130, 89);
 
+	context.textAlign = "left";
+	context.font = "bold 80px malgun gothic"
+	context.fillStyle = "#ffffff";
+	context.fillText(min_countDown + " : " + sec_countDown, viewport.screen[0] / 2 - 115, 115);
+	
 	requestAnimationFrame(drawGame);
+}
+
+function timerCount(){
+
+	x = setInterval(function () {
+        min_countDown = parseInt(time / 60);
+        sec_countDown = time % 60;
+        
+		// process bar
+        if(width > 0){
+        	width -= width / time;
+        }
+        time--;
+		timerId = x;
+
+        if (time < 0) {
+            clearInterval(x);
+            lives = 0;
+        }
+    }, 1000);
 }
 
 // gameover

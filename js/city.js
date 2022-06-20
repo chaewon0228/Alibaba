@@ -56,12 +56,15 @@ let tileW = 100, tileH = 100;
 let mapW = 37, mapH = 34;
 // 프레임 속도
 let currentSecond = 0, frameCount = 0, framesLastSecond = 0, lastFrameTime = 0;
-let min_countDown = "", sec_countDown = "", time = 210;;
+let min_countDown = "", sec_countDown = "", time = 150, x;
 
 let tileEvents = {
 	476: drawpath,
 	479: rideboat,
-	872: touchbox
+	872: touchbox,
+	834: touchbox,
+	836: touchbox,
+	798: touchbox
 };
 
 function touchbox() {
@@ -645,9 +648,9 @@ window.onload = function () {
 	});
 
 	body.addEventListener("click", function (e) {
-		for (let i = 0; i < weaponId; i++) {
-			clearTimeout(i);
-		}
+		// for (let i = 0; i < weaponId; i++) {
+		// 	clearTimeout(i);
+		// }
 		clickPosition[0] = e.screenX;
 		clickPosition[1] = e.screenY;
 		weapon.size = weaponSize[1];
@@ -994,9 +997,10 @@ function drawGame() {
 					lives--;
 					loadAudio(2);
 					console.log(lives);
-					for (let i = 0; i < attackId; i++) {
-						clearTimeout(i);
-					}
+					// for (let i = 0; i < attackId; i++) {
+					// 	if(i != timerId) clearTimeout(i);
+					// 	else timerId = x;
+					// }
 					attackId = setTimeout(() => { isAttackable = 1; }, 2500);
 					break;
 				}
@@ -1057,34 +1061,34 @@ function drawGame() {
 		coinsetLoaded = true;
 	}
 	coinset.src = coinsetURL;
-	context.drawImage(coinset, viewport.screen[0] - 100, 34, 62, 67);
+	context.drawImage(coinset, viewport.screen[0] - 120, 36, 62, 67);
 
 	context.textAlign = "right";
 	context.font = "50px malgun gothic"
 	context.fillStyle = "#ffffff";
-	context.fillText(coin_cnt + " X ", viewport.screen[0] - 190, 89);
+	context.fillText(coin_cnt + " X ", viewport.screen[0] - 130, 89);
 
 	context.textAlign = "left";
 	context.font = "bold 80px malgun gothic"
-	context.fillStyle = "#ff0000";
-	context.fillText(min_countDown + " : " + sec_countDown, 30, viewport.screen[1] - 30);
+	context.fillStyle = "#ffffff";
+	context.fillText(min_countDown + " : " + sec_countDown, viewport.screen[0] / 2 - 115, 115);
 	
 	requestAnimationFrame(drawGame);
 }
 
 function timerCount(){
 
-	let x = setInterval(function () {
+	x = setInterval(function () {
         min_countDown = parseInt(time / 60);
         sec_countDown = time % 60;
         
 		// process bar
-        // if(width > 0){
-        //     width -= width / time;
-        //     document.getElementById("myBar").style.width = width + "px";
-        // }
+        if(width > 0){
+        	width -= width / time;
+        }
         time--;
-        
+		timerId = x;
+
         if (time < 0) {
             clearInterval(x);
             lives = 0;
