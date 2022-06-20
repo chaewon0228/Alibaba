@@ -57,10 +57,11 @@ let tileW = 100, tileH = 100;
 let mapW = 40, mapH = 40;
 let getkey = false;
 let currentSecond = 0, frameCount = 0, framesLastSecond = 0, lastFrameTime = 0;
+let min_countDown = "", sec_countDown = "", time = 150, x;
 
 let tileEvents = {
 	550: touchbox,
-	1351: touchcave
+	916: touchcave
 };
 
 function touchbox() {
@@ -125,6 +126,13 @@ let objectTypes = {
 		offset: [0, 0],
 		collision: objectCollision.solid,
 		zIndex: 1
+	},
+	5: {
+		name: "cave",
+		sprite: [{x: 0, y: 0, w: 450, h: 450}],
+		offset: [0, 0],
+		collision: objectCollision.none,
+		zIndex: 3
 	}
 };
 
@@ -134,6 +142,14 @@ let coinType = {
 		name: "Coin",
 		sprite: [{x: 97, y: 48, w: 14, h: 15}],
 		offset: [20, 10]
+	}
+}
+// cave
+let caveType = {
+	1: {
+		name: "cave",
+		sprite: [{x:0, y:0, w:450, h: 450}],
+		offset: [0, 0]
 	}
 }
 function stack(id, ctc) {
@@ -197,7 +213,7 @@ let tileTypes = {
 	14: { colour: "#e8bd7a", floor: floorTypes.grass, sprite: [{ x: 0, y: 17, w: 16, h: 14 }] },    // 섬
 
 	15: { colour: "#e8bd7a", floor: floorTypes.solid, sprite: [{ x: 32, y: 33, w: 16, h: 14 }] },   // 배
-	16: { colour: "#e8bd7a", floor: floorTypes.grass, sprite: [{ x: 32, y: 32, w: 15, h: 16 }] }    // 깨진
+	16: { colour: "#e8bd7a", floor: floorTypes.grass, sprite: [{ x: 33, y: 33, w: 14, h: 14 }] }    // 깨진
 };
 
 function Tile(tx, ty, tt) {
@@ -422,11 +438,11 @@ Character.prototype.get = function () {
 	let is = mapTileData.map[toIndex(this.tileFrom[0], this.tileFrom[1])].coinStack;
 
 	if(is != null) {
-		loadAudio(3)
+		
 		mapTileData.map[toIndex(this.tileFrom[0], this.tileFrom[1])].coinStack = null;
 		coin_cnt++;
 		loadAudio(6);
-		console.log('코인 획득✨');
+
 	}
 	return true;
 }
@@ -530,6 +546,8 @@ let coll;
 
 window.onload = function () {
 	context = document.getElementById('game').getContext("2d");
+	document.getElementById('game').width = window.innerWidth;
+	document.getElementById('game').height =  window.innerHeight;
 
 	// full screen인지 확인
 	$(window).resize(function () {
@@ -574,9 +592,9 @@ window.onload = function () {
 	audio[8].src = '../sound/success.mp3';
 
 	body.addEventListener("click", function (e) {
-		for (let i = 0; i < weaponId; i++) {
-			clearTimeout(i);
-		}
+		// for (let i = 0; i < weaponId; i++) {
+		// 	clearTimeout(i);
+		// }
 		clickPosition[0] = e.screenX;
 		clickPosition[1] = e.screenY;
 		weapon.size = weaponSize[1];
@@ -606,7 +624,7 @@ window.onload = function () {
 		}, 500);
 	});
 
-	viewport.screen = [document.getElementById('game').width, document.getElementById('game').height];
+	viewport.screen = [window.innerWidth, window.innerHeight];
 
 	tileset = new Image();
 	tileset.onload = function () { tilesetLoaded = true; };
@@ -674,6 +692,9 @@ window.onload = function () {
 	let keybox = new MapObject(4);
 	keybox.placeAt(31, 13);
 
+	let cave_draw = new MapObject(5);
+	cave_draw.placeAt(35, 20);
+
 	// coin 생성 및 위치
 	let c;
 	let rand1, rand2;
@@ -684,7 +705,7 @@ window.onload = function () {
 
 		c.placeAt(rand1, rand2);
 	}
-
+	timerCount();
 };
 
 // coin 배치 
@@ -709,6 +730,12 @@ let attackId;
 let target = null;
 let isMusinPlay = 0;
 let shadow = 200;
+
+let coinset = null;
+let coinsetURL = "../image/coin.png";
+let coinsetLoaded = false;
+
+let width = window.innerWidth;
 
 function drawGame() {
 
@@ -771,17 +798,27 @@ function drawGame() {
 				if (o != null && objectTypes[o.type].zIndex == z) {
 					let ot = objectTypes[o.type];
 
-					context.drawImage(tileset,
+					if(objectTypes[o.type].name == "cave"){
+						console.log("cave draw")
+						context.drawImage(caveset, ot.sprite[0].x, ot.sprite[0].y, ot.sprite[0].w, ot.sprite[0].h,
+							viewport.offset[0] + (x * tileW) + ot.offset[0], viewport.offset[1] + (y * tileH) + ot.offset[1],
+							tileW + 230, tileH + 210);
+					}
+					else{
+						context.drawImage(tileset,
 						ot.sprite[0].x, ot.sprite[0].y,
 						ot.sprite[0].w, ot.sprite[0].h,
 						viewport.offset[0] + (x * tileW) + ot.offset[0],
 						viewport.offset[1] + (y * tileH) + ot.offset[1],
 						tileW - 10, tileH - 10);
+					}
 				}
 
 
 			}
-			context.drawImage(caveset, 0, 0, 450, 450, viewport.offset[0] + 1500, viewport.offset[1] + 1500, 180, 180);
+			// cave 그리기 (1351 / 45) * 3
+			//context.drawImage(caveset, 0, 0, 450, 450, viewport.offset[0] + 1500, viewport.offset[1] + 1500, 190, 200);
+			//context.drawImage(caveset, 0, 0, 450, 450, viewport.offset[0] + (3 * tileW), viewport.offset[1] + (3 * tileH), 190, 200);
 		}
 		if (z == 1) {
 			let sprite = player.sprites[player.direction];
@@ -836,9 +873,9 @@ function drawGame() {
 					lives--;
 					loadAudio(2);
 					console.log(lives);
-					for (let i = 0; i < attackId; i++) {
-						clearTimeout(i);
-					}
+					// for (let i = 0; i < attackId; i++) {
+					// 	clearTimeout(i);
+					// }
 					attackId = setTimeout(() => { isAttackable = 1; }, 2500);
 					break;
 				}
@@ -888,23 +925,46 @@ function drawGame() {
 	
 
 	// coin 그리기
-	let coinset = null;
-	let coinsetURL = "../image/coin.png";
-	let coinsetLoaded = false;
+	
 
 	coinset = new Image();
 	coinset.onload = function () {
 		coinsetLoaded = true;
 	}
 	coinset.src = coinsetURL;
-	context.drawImage(coinset, screen.width - 100, 34, 62, 67);
+	context.drawImage(coinset, viewport.screen[0] - 120, 36, 62, 67);
 
-	context.textAlign = "left";
+	context.textAlign = "right";
 	context.font = "50px malgun gothic"
 	context.fillStyle = "#ffffff";
-	context.fillText(coin_cnt + " X ", screen.width - 190, 89);
+	context.fillText(coin_cnt + " X ", viewport.screen[0] - 130, 89);
+
+	context.textAlign = "left";
+	context.font = "bold 80px malgun gothic"
+	context.fillStyle = "#ffffff";
+	context.fillText(min_countDown + " : " + sec_countDown, viewport.screen[0] / 2 - 115, 115);
 
 	requestAnimationFrame(drawGame);
+}
+
+function timerCount(){
+
+	x = setInterval(function () {
+        min_countDown = parseInt(time / 60);
+        sec_countDown = time % 60;
+        
+		// process bar
+        if(width > 0){
+        	width -= width / time;
+        }
+        time--;
+		timerId = x;
+
+        if (time < 0) {
+            clearInterval(x);
+            lives = 0;
+        }
+    }, 1000);
 }
 
 // gameover
