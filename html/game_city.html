@@ -102,6 +102,17 @@
 				height: 1440px;
 			}
 		}
+
+		#myProgress {
+			width: 100%;
+			background-color: #ddd;
+		}
+
+		#myBar {
+			width: 100%;
+			height: 30px;
+			background-color: #4CAF50;
+		}
 	</style>
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
@@ -114,8 +125,11 @@
 
 <body>
 	<div id="wrapper">
-		 <canvas id="game" width="1800px" height="1000px"></canvas> 
-		<!-- <canvas id="game" width="1600px" height="1000px"></canvas> -->
+		<!-- <canvas id="game" width="1800px" height="1000px" style="position: relative;"></canvas> -->
+		<canvas id="game" style="position: relative;"></canvas>
+		<!-- <div id="myProgress" style="position: absolute;">
+			<div id="myBar" style="position: absolute;"></div>
+		</div> -->
 	</div>
 
 	<div id="noKey">

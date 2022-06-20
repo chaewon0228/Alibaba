@@ -56,6 +56,7 @@ let tileW = 100, tileH = 100;
 let mapW = 37, mapH = 34;
 // 프레임 속도
 let currentSecond = 0, frameCount = 0, framesLastSecond = 0, lastFrameTime = 0;
+let min_countDown = "", sec_countDown = "", time = 210;;
 
 let tileEvents = {
 	476: drawpath,
@@ -596,6 +597,9 @@ let coll;
 window.onload = function () {
 
 	context = document.getElementById('game').getContext("2d");
+	document.getElementById('game').width = window.innerWidth;
+	document.getElementById('game').height =  window.innerHeight;
+	console.log(innerWidth + " " + innerHeight);
 
 	// full screen인지 확인
 	$(window).resize(function () {
@@ -609,7 +613,7 @@ window.onload = function () {
 			alert('🚨 전체화면[F11]로 실행해주세요 🚨');
         }
     });
-	
+
 	requestAnimationFrame(drawGame);
 	context.font = "bold 10pt sans-serif";
 
@@ -674,7 +678,7 @@ window.onload = function () {
 	});
 
 	// 캔버스 크기를 확인하고 뷰포트 개체의 화면 속성에 저장
-	viewport.screen = [document.getElementById('game').width, document.getElementById('game').height];
+	viewport.screen = [window.innerWidth, window.innerHeight];
 
 	tileset = new Image();
 	// 타일이 로드 됐는지 확인하여 실행
@@ -802,6 +806,7 @@ window.onload = function () {
 		} 
 		c.placeAt(rand1, rand2);
 	}
+	timerCount();
 };
 
 
@@ -828,6 +833,12 @@ let attackId;
 let target = null;
 let isMusinPlay = 0;
 let shadow = 200;
+
+let coinset = null;
+let coinsetURL = "../image/coin.png";
+let coinsetLoaded = false;
+
+let width = window.innerWidth;
 
 // 지도 그리기 & 프레임 속도(느려지면 재귀 호출)
 function drawGame() {
@@ -1039,26 +1050,47 @@ function drawGame() {
 
 
 	// coin 그리기
-	let coinset = null;
-	let coinsetURL = "../image/coin.png";
-	let coinsetLoaded = false;
+
 
 	coinset = new Image();
 	coinset.onload = function () {
 		coinsetLoaded = true;
 	}
 	coinset.src = coinsetURL;
-	context.drawImage(coinset, screen.width - 100, 34, 62, 67);
+	context.drawImage(coinset, viewport.screen[0] - 100, 34, 62, 67);
 
-	context.textAlign = "left";
+	context.textAlign = "right";
 	context.font = "50px malgun gothic"
 	context.fillStyle = "#ffffff";
-	context.fillText(coin_cnt + " X ", screen.width - 190, 89);
+	context.fillText(coin_cnt + " X ", viewport.screen[0] - 190, 89);
 
+	context.textAlign = "left";
+	context.font = "bold 80px malgun gothic"
+	context.fillStyle = "#ff0000";
+	context.fillText(min_countDown + " : " + sec_countDown, 30, viewport.screen[1] - 30);
+	
 	requestAnimationFrame(drawGame);
 }
 
+function timerCount(){
 
+	let x = setInterval(function () {
+        min_countDown = parseInt(time / 60);
+        sec_countDown = time % 60;
+        
+		// process bar
+        // if(width > 0){
+        //     width -= width / time;
+        //     document.getElementById("myBar").style.width = width + "px";
+        // }
+        time--;
+        
+        if (time < 0) {
+            clearInterval(x);
+            lives = 0;
+        }
+    }, 1000);
+}
 
 // gameover
 function gameover() {
@@ -1092,7 +1124,7 @@ function playAudio(id) {
 function text() {
 	context.font = '55px arcade';
 	context.fillStyle = "black";
-	context.fillText('OBTAINED A KEY!   go to the boat.', 50, screen.height - 30);
+	context.fillText('OBTAINED A KEY!   go to the boat.', 50, viewport.screen[1] - 30);
 }
 
 function replay() {
