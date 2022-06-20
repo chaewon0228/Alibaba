@@ -61,7 +61,7 @@ let min_countDown = "", sec_countDown = "", time = 150, x;
 
 let tileEvents = {
 	550: touchbox,
-	1351: touchcave
+	916: touchcave
 };
 
 function touchbox() {
@@ -126,6 +126,13 @@ let objectTypes = {
 		offset: [0, 0],
 		collision: objectCollision.solid,
 		zIndex: 1
+	},
+	5: {
+		name: "cave",
+		sprite: [{x: 0, y: 0, w: 450, h: 450}],
+		offset: [0, 0],
+		collision: objectCollision.none,
+		zIndex: 3
 	}
 };
 
@@ -135,6 +142,14 @@ let coinType = {
 		name: "Coin",
 		sprite: [{x: 97, y: 48, w: 14, h: 15}],
 		offset: [20, 10]
+	}
+}
+// cave
+let caveType = {
+	1: {
+		name: "cave",
+		sprite: [{x:0, y:0, w:450, h: 450}],
+		offset: [0, 0]
 	}
 }
 function stack(id, ctc) {
@@ -198,7 +213,7 @@ let tileTypes = {
 	14: { colour: "#e8bd7a", floor: floorTypes.grass, sprite: [{ x: 0, y: 17, w: 16, h: 14 }] },    // 섬
 
 	15: { colour: "#e8bd7a", floor: floorTypes.solid, sprite: [{ x: 32, y: 33, w: 16, h: 14 }] },   // 배
-	16: { colour: "#e8bd7a", floor: floorTypes.grass, sprite: [{ x: 32, y: 32, w: 15, h: 16 }] }    // 깨진
+	16: { colour: "#e8bd7a", floor: floorTypes.grass, sprite: [{ x: 33, y: 33, w: 14, h: 14 }] }    // 깨진
 };
 
 function Tile(tx, ty, tt) {
@@ -423,11 +438,11 @@ Character.prototype.get = function () {
 	let is = mapTileData.map[toIndex(this.tileFrom[0], this.tileFrom[1])].coinStack;
 
 	if(is != null) {
-		loadAudio(3)
+		
 		mapTileData.map[toIndex(this.tileFrom[0], this.tileFrom[1])].coinStack = null;
 		coin_cnt++;
 		loadAudio(6);
-		console.log('코인 획득✨');
+
 	}
 	return true;
 }
@@ -677,6 +692,9 @@ window.onload = function () {
 	let keybox = new MapObject(4);
 	keybox.placeAt(31, 13);
 
+	let cave_draw = new MapObject(5);
+	cave_draw.placeAt(35, 20);
+
 	// coin 생성 및 위치
 	let c;
 	let rand1, rand2;
@@ -780,17 +798,27 @@ function drawGame() {
 				if (o != null && objectTypes[o.type].zIndex == z) {
 					let ot = objectTypes[o.type];
 
-					context.drawImage(tileset,
+					if(objectTypes[o.type].name == "cave"){
+						console.log("cave draw")
+						context.drawImage(caveset, ot.sprite[0].x, ot.sprite[0].y, ot.sprite[0].w, ot.sprite[0].h,
+							viewport.offset[0] + (x * tileW) + ot.offset[0], viewport.offset[1] + (y * tileH) + ot.offset[1],
+							tileW + 230, tileH + 210);
+					}
+					else{
+						context.drawImage(tileset,
 						ot.sprite[0].x, ot.sprite[0].y,
 						ot.sprite[0].w, ot.sprite[0].h,
 						viewport.offset[0] + (x * tileW) + ot.offset[0],
 						viewport.offset[1] + (y * tileH) + ot.offset[1],
 						tileW - 10, tileH - 10);
+					}
 				}
 
 
 			}
-			context.drawImage(caveset, 0, 0, 450, 450, viewport.offset[0] + 1500, viewport.offset[1] + 1500, 180, 180);
+			// cave 그리기 (1351 / 45) * 3
+			//context.drawImage(caveset, 0, 0, 450, 450, viewport.offset[0] + 1500, viewport.offset[1] + 1500, 190, 200);
+			//context.drawImage(caveset, 0, 0, 450, 450, viewport.offset[0] + (3 * tileW), viewport.offset[1] + (3 * tileH), 190, 200);
 		}
 		if (z == 1) {
 			let sprite = player.sprites[player.direction];
