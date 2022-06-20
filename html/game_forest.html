@@ -71,6 +71,10 @@
 			padding: 10px;
 		}
 
+		h5 {
+			text-align: center;
+		}
+
 		.inputName .input_name {
 			border: 1px black solid;
 			padding: 10px;
@@ -92,6 +96,25 @@
 		.canvas {
 			width: 1600px;
 			height: 1000px;
+		}
+
+		#spell_modal {
+			display: flex;
+			justify-content: center;
+		}
+
+		.container-spell {
+			background-image: url('../image/spell_paper.png');
+			background-repeat: no-repeat;
+			background-size: cover;
+			background-position:center center;
+			width: 100%;
+			height: 400px;
+			text-align: center;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
 		}
 
 		/* iMac 반응형 */
@@ -125,6 +148,13 @@
 			<input type="hidden" name="coin" id="input_coin">
 			<input type="submit" value="전송" class="input_submit">
 		</form>
+	</div>
+
+	<div id="spell_modal" class="modal">
+		<div class="container-spell">
+			<h3>[미림]</h3>
+			<h5>지금 주문을 외워두었다가 최종 맵에 입력해주세요.</h5>
+		</div>
 	</div>
 
 	<p class="gameover" id="gameover">GAME OVER</p>

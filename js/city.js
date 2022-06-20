@@ -71,6 +71,7 @@ function touchbox() {
 	console.log("boxbox!");
 	getkey = true;
 	loadAudio(4);
+	$('#spell_modal').modal('show');
 	
 }
 function drawpath() {
