@@ -85,13 +85,14 @@ function rideboat() {
 
 	if (getkey == true) {
 		// 키가 있을 때 게임 종료
+		loadAudio(8);
 		$(document).off("keydown");
 		$(document).off("keyup");
 		$('#inputName').modal('show');
 		document.getElementById("input_coin").value = coin_cnt;
 	}
 	else{
-		//loadAudio(10);
+		loadAudio(7);
 		$('#noKey').modal('show');
 	}
 }
@@ -437,6 +438,7 @@ Character.prototype.get = function () {
 		mapTileData.map[toIndex(this.tileFrom[0], this.tileFrom[1])].coinStack = null;
 		coin_cnt++;
 		console.log('코인 획득✨');
+		loadAudio(6);
 	}
 	return true;
 }
@@ -570,6 +572,9 @@ window.onload = function () {
 	audio[3].src = '../sound/break_rock.wav';
 	audio[2].src = '../sound/laugh.ogg';
 	audio[5].src = '../sound/gameover.wav';
+	audio[6].src = '../sound/get_coin.ogg';
+	audio[7].src = '../sound/error.mp3';
+	audio[8].src = '../sound/success.mp3'
 
 	window.addEventListener("keydown", function (e) {
 		if (e.keyCode >= 65 && e.keyCode <= 87) { keysDown[e.keyCode] = true; }
@@ -971,10 +976,10 @@ function gameover() {
 	return;
 }
 
-let weaponSize = [30, 70];
+let weaponSize = [40, 75];
 let weapon = {
 	position: [0, 0],
-	size: 30
+	size: weaponSize[0]
 }
 function loadAudio(id) {
 	audio[id].load();
