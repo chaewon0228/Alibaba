@@ -78,6 +78,7 @@ function touchbox() {
 	console.log("box");
 	getkey = true;
 	loadAudio(4);
+	$('#spell_modal').modal('show');
 
 }
 function rideboat() {
