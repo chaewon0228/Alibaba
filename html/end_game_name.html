@@ -83,11 +83,14 @@
         </style>
         <meta charset="utf-8">
         <title>열려라 참깨!</title>
-        <script src="../js/end_game.js"></script>
     </head>
     <body>
         <div class="box">
         </div>
+        <form action="/process/spell" method="post">
+            <input type="text" name="spell" id="input_spell" class="input_spell">
+            <input type="submit" value="제출" onclick="spellSubmit" class="input_submit">
+        </form>
         <audio loop id="audio">
             <source id="audioSource">
           Your browser does not support the audio element.
