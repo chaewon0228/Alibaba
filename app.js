@@ -106,7 +106,7 @@ var updateUser = function(database, name, oldCoin, coin, callback) {
     console.log("updateUser 호출 됨 : " + name + coin)
     console.log("기존 코인" + oldCoin)
 
-    UserModel.findOneAndUpdate({name: name}, {coin: oldCoin+coin}, function(err, updatedUser) {
+    UserModel.findOneAndUpdate({name: name}, {coin: (+oldCoin)+(+coin)}, function(err, updatedUser) {
         if(err) {
             callback(err, null)
             return
@@ -119,6 +119,7 @@ var updateUser = function(database, name, oldCoin, coin, callback) {
 router.route('/process/adduser').post(function(req, res) {
     var username = req.body.name || req.query.name;
     var coinCount = req.body.coin || req.query.coin;
+    var isEnd = req.body.end || req.query.end;
 
     if(database) {
         UserModel.findById(username, function(err, results) {
@@ -158,9 +159,22 @@ router.route('/process/adduser').post(function(req, res) {
             }
             
         })
+        if(isEnd) {
+            res.redirect('/html/end_game_name.html')
+        }
+        else {
+            res.redirect('/html/map.html')
+        }
         
     }
-    res.redirect('/html/start.html')
+    
+})
+
+router.route('/process/spell').post(function(req, res) {
+    var spell = req.body.spell || req.query.spell;
+    if(spell == "열려라 미림 월드") {
+        res.redirect('/html/end_game.html')
+    }
 })
 
 router.route("/process/rank").get(function(req, res) {

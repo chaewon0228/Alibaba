@@ -5,6 +5,8 @@
             * {
                 margin: 0;
                 padding: 0;
+                overflow: hidden;
+			    display: block;
             }
             @font-face {
                 font-family: 'arcade';
@@ -13,7 +15,7 @@
                 font-style: normal; 
             }
             body {
-                background-image: url("../image/gold.png");
+
                 background-repeat: no-repeat;
                 background-size: cover;
                 display: flex;
@@ -29,6 +31,7 @@
                 font-weight: bold;
                 text-align: center;
                 line-height: 100vh;
+                z-index: 2;
             }
 
             @keyframes caret {
@@ -60,6 +63,33 @@
             .start2:hover {
                 font-size: 80px;
             }
+
+            form {
+                position: fixed;
+                bottom: 100px;
+            }
+            .input_spell {
+                font-size: 50px;
+                padding: 10px;
+                color: black;
+            }
+            .input_submit {
+                padding: 20px;
+                padding-left: 40px;
+                padding-right: 40px;
+                background-color: black;
+                color: white;
+                font-size: 30px;
+                border-radius: 20px;
+
+            }
+            img{
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                z-index: 1;
+            }
         </style>
         <meta charset="utf-8">
         <title>열려라 참깨!</title>
@@ -72,5 +102,7 @@
             <source id="audioSource">
           Your browser does not support the audio element.
           </audio>
+
+          <img id="cave" src="../gif/open_caveDoor.gif">
     </body>
 </html>
