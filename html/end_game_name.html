@@ -1,99 +1,133 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-            }
-            @font-face {
-                font-family: 'arcade';
-                src: url('../font/arcade.ttf') format('truetype');
-                font-weight: normal;
-                font-style: normal; 
-            }
-            body {
-                background-image: url("../image/gold.png");
-                background-repeat: no-repeat;
-                background-size: cover;
-                display: flex;
-                justify-content: center;
-                font-family: 'arcade';
-            }
 
-            .box {
-                font-size: 70px;
-                height: 100vh;
-                width: 100%;
-                color: white;
-                font-weight: bold;
-                text-align: center;
-                line-height: 100vh;
-            }
+<head>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
 
-            @keyframes caret {
-                50% {
-                    border-color: transparent;
-                }
-            }
+        @font-face {
+            font-family: 'arcade';
+            src: url('../font/arcade.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
 
-            .start {
-                font-family: 'arcade';
-                color: white;
-                margin: 20px;
-                position: fixed;
-                right: 0px;
-                top: 0px;
-                font-size: 70px;
-            }
+        body {
+            background-image: url("../gif/input_spell.gif");
+            background-repeat: no-repeat;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            font-family: 'arcade';
+        }
 
-            .start:hover {
-                font-size: 80px;
-            }
+        .box {
+            font-size: 70px;
+            height: 100vh;
+            width: 100%;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            line-height: 100vh;
+        }
 
-            .start2 {
-                font-family: 'arcade';
-                color: white;
-                font-size: 70px;
+        @keyframes caret {
+            50% {
+                border-color: transparent;
             }
+        }
 
-            .start2:hover {
-                font-size: 80px;
-            }
+        .start {
+            font-family: 'arcade';
+            color: white;
+            margin: 20px;
+            position: fixed;
+            right: 0px;
+            top: 0px;
+            font-size: 70px;
+        }
 
-            form {
-                position: fixed;
-                bottom: 100px;
-            }
-            .input_spell {
-                font-size: 50px;
-                padding: 10px;
-                color: black;
-            }
-            .input_submit {
-                padding: 20px;
-                padding-left: 40px;
-                padding-right: 40px;
-                background-color: black;
-                color: white;
-                font-size: 30px;
-                border-radius: 20px;
+        .start:hover {
+            font-size: 80px;
+        }
 
-            }
-        </style>
-        <meta charset="utf-8">
-        <title>열려라 참깨!</title>
-    </head>
-    <body>
-        <div class="box">
-        </div>
-        <form action="/process/spell" method="post">
-            <input type="text" name="spell" id="input_spell" class="input_spell">
-            <input type="submit" value="제출" onclick="spellSubmit" class="input_submit">
-        </form>
-        <audio loop id="audio">
-            <source id="audioSource">
-          Your browser does not support the audio element.
-          </audio>
-    </body>
+        .start2 {
+            font-family: 'arcade';
+            color: white;
+            font-size: 70px;
+        }
+
+        .start2:hover {
+            font-size: 80px;
+        }
+
+        form {
+            position: fixed;
+            bottom: 100px;
+        }
+
+        .input_spell {
+            font-size: 50px;
+            padding: 10px;
+            color: black;
+        }
+
+        .input_submit {
+            position: relative;
+            display: inline-block;
+            font-size: 30px;
+            padding: 15px;
+            padding-left: 30px;
+            padding-right: 30px;
+            color: white;
+            margin-left: 20px;
+            border-radius: 2px;
+            text-align: center;
+            transition: top .01s linear;
+            text-shadow: 0 3px 0 rgba(0, 0, 0, 0.15);
+        }
+
+        .input_submit.yellow:hover {
+            background-color: #F0D264;
+        }
+
+        .input_submit:active {
+            top: 9px;
+        }
+
+        .input_submit.yellow {
+            background-color: #F0D264;
+            box-shadow: 0 0 0 1px #F0D264 inset,
+                0 0 0 2px rgba(255, 255, 255, 0.15) inset,
+                0 8px 0 0 rgba(196, 172, 83, .7),
+                0 8px 0 1px rgba(0, 0, 0, .4),
+                0 8px 8px 1px rgba(0, 0, 0, 0.5);
+        }
+
+        .input_submit.yellow:active {
+            box-shadow: 0 0 0 1px #F0D264 inset,
+                0 0 0 2px rgba(255, 255, 255, 0.15) inset,
+                0 0 0 1px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+    <meta charset="utf-8">
+    <title>열려라 참깨!</title>
+</head>
+
+<body>
+    <div class="box">
+    </div>
+    <form action="/process/spell" method="post">
+        <input type="text" name="spell" id="input_spell" class="input_spell">
+        <input type="submit" value="OPEN" onclick="spellSubmit" class="input_submit yellow">
+    </form>
+    <audio loop id="audio">
+        <source id="audioSource">
+        Your browser does not support the audio element.
+    </audio>
+</body>
+
 </html>
