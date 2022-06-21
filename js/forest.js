@@ -856,7 +856,7 @@ function drawGame() {
 		}
 	}
 
-	if (isMonsterShown == 1) {
+	if (isMonsterShown == 1 && getkey == false) {
 		for (let i = 0; i < monsters.length; i++) {
 			monsters[i].move();
 			// clearTimeout(monsters[i].flying);
