@@ -939,11 +939,15 @@ function drawGame() {
 	context.font = "50px malgun gothic"
 	context.fillStyle = "#ffffff";
 	context.fillText(coin_cnt + " X ", viewport.screen[0] - 130, 89);
+	context.strokeStyle = "black";
+	context.strokeText(coin_cnt + " X ", viewport.screen[0] - 130, 89);
 
 	context.textAlign = "left";
 	context.font = "bold 80px malgun gothic"
 	context.fillStyle = "#ffffff";
 	context.fillText(min_countDown + " : " + sec_countDown, viewport.screen[0] / 2 - 115, 115);
+	context.strokeStyle = "black";
+	context.strokeText(min_countDown + " : " + sec_countDown, viewport.screen[0] / 2 - 115, 115);
 
 	requestAnimationFrame(drawGame);
 }
