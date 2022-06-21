@@ -37,22 +37,19 @@ function changeImage() {
   story();
 }
 
+var laughAudio = new Audio();
+var egyptAudio = new Audio();
+laughAudio.loop = false;
+egyptAudio.loop = true;
+
+laughAudio.src = '../sound/clear_laugh.mp3'
+egyptAudio.src = '../sound/egypt.mp3'
+
 document.addEventListener("click", function (event) {
   const audio = document.querySelector('#audio');
 
-  function loadAudio() {
-    let source = document.querySelector("#audioSource");
-    source.src = '../sound/egypt.mp3';
-    audio.load();
-    playAudio(true);
-  }
-
-  function playAudio(isLoop) {
-    audio.volume = 0.2;
-    audio.loop = isLoop;
-    audio.play();
-  }
-  loadAudio();
+  laughAudio.play();
+  egyptAudio.play();
 
 });
 

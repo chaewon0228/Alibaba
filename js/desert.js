@@ -57,7 +57,7 @@ let tileW = 100, tileH = 100;
 let mapW = 40, mapH = 40;
 let getkey = false;
 let currentSecond = 0, frameCount = 0, framesLastSecond = 0, lastFrameTime = 0;
-let min_countDown = "", sec_countDown = "", time = 150, x;
+let min_countDown = "", sec_countDown = "", time = 210, x;
 
 let tileEvents = {
 	550: touchbox,
