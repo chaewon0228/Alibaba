@@ -57,6 +57,7 @@ let mapW = 37, mapH = 34;
 // 프레임 속도
 let currentSecond = 0, frameCount = 0, framesLastSecond = 0, lastFrameTime = 0;
 let min_countDown = "", sec_countDown = "", time = 150, x;
+let time_bar = 200;
 
 let tileEvents = {
 	476: drawpath,
@@ -842,7 +843,7 @@ let coinset = null;
 let coinsetURL = "../image/coin.png";
 let coinsetLoaded = false;
 
-let width = window.innerWidth;
+
 
 // 지도 그리기 & 프레임 속도(느려지면 재귀 호출)
 function drawGame() {
@@ -1065,19 +1066,30 @@ function drawGame() {
 	context.drawImage(coinset, viewport.screen[0] - 120, 36, 62, 67);
 
 	context.textAlign = "right";
-	context.font = "50px malgun gothic"
+	context.font = "bold 55px malgun gothic"
 	context.fillStyle = "#ffffff";
-	context.fillText(coin_cnt + " X ", viewport.screen[0] - 130, 89);
+	context.fillText(coin_cnt + " X ", viewport.screen[0] - 130, 90);
 	context.strokeStyle = "black";
-	context.strokeText(coin_cnt + " X ", viewport.screen[0] - 130, 89);
+	context.lineWidth = 0.5;
+	context.strokeText(coin_cnt + " X ", viewport.screen[0] - 130, 90);
 
 	context.textAlign = "left";
 	context.font = "bold 80px malgun gothic"
 	context.fillStyle = "#ffffff";
 	context.fillText(min_countDown + " : " + sec_countDown, viewport.screen[0] / 2 - 115, 115);
 	context.strokeStyle = "black";
+	context.lineWidth = 2;
 	context.strokeText(min_countDown + " : " + sec_countDown, viewport.screen[0] / 2 - 115, 115);
 	
+	context.fillStyle = '#ddd';
+	context.fillRect(viewport.screen[0] / 2 - 108, 140, 200, 10);
+
+	context.fillStyle = '#ffd400';
+	context.strokeStyle = 'black';
+	context.lineWidth = 2;
+	context.strokeRect(viewport.screen[0] / 2 - 108, 140, time_bar, 10);
+	context.fillRect(viewport.screen[0] / 2 - 108, 140, time_bar, 10);
+
 	requestAnimationFrame(drawGame);
 }
 
@@ -1087,9 +1099,12 @@ function timerCount(){
         min_countDown = parseInt(time / 60);
         sec_countDown = time % 60;
         
+		if(sec_countDown < 10) {
+			sec_countDown = "0" + sec_countDown;
+		}
 		// process bar
-        if(width > 0){
-        	width -= width / time;
+        if(time_bar > 0){
+        	time_bar -= time_bar / time;
         }
         time--;
 		timerId = x;
