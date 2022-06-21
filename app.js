@@ -106,7 +106,7 @@ var updateUser = function(database, name, oldCoin, coin, callback) {
     console.log("updateUser 호출 됨 : " + name + coin)
     console.log("기존 코인" + oldCoin)
 
-    UserModel.findOneAndUpdate({name: name}, {coin: (+oldCoin)+coin}, function(err, updatedUser) {
+    UserModel.findOneAndUpdate({name: name}, {coin: (+oldCoin)+(+coin)}, function(err, updatedUser) {
         if(err) {
             callback(err, null)
             return
@@ -163,7 +163,7 @@ router.route('/process/adduser').post(function(req, res) {
             res.redirect('/html/end_game_name.html')
         }
         else {
-            res.redirect('/html/start.html')
+            res.redirect('/html/map.html')
         }
         
     }
