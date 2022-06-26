@@ -58,6 +58,7 @@ let mapW = 40, mapH = 40;
 let getkey = false;
 let currentSecond = 0, frameCount = 0, framesLastSecond = 0, lastFrameTime = 0;
 let min_countDown = "", sec_countDown = "", time = 210, x;
+let time_bar = 200;
 
 let tileEvents = {
 	550: touchbox,
@@ -736,7 +737,7 @@ let coinset = null;
 let coinsetURL = "../image/coin.png";
 let coinsetLoaded = false;
 
-let width = window.innerWidth;
+
 
 function drawGame() {
 
@@ -854,7 +855,7 @@ function drawGame() {
 		}
 	}
 
-	if (isMonsterShown == 1) {
+	if (isMonsterShown == 1 && getkey == false) {
 		for (let i = 0; i < monsters.length; i++) {
 			monsters[i].move();
 			// clearTimeout(monsters[i].flying);
@@ -936,18 +937,29 @@ function drawGame() {
 	context.drawImage(coinset, viewport.screen[0] - 120, 36, 62, 67);
 
 	context.textAlign = "right";
-	context.font = "50px malgun gothic"
+	context.font = "bold 55px malgun gothic"
 	context.fillStyle = "#ffffff";
-	context.fillText(coin_cnt + " X ", viewport.screen[0] - 130, 89);
+	context.fillText(coin_cnt + " X ", viewport.screen[0] - 130, 90);
 	context.strokeStyle = "black";
-	context.strokeText(coin_cnt + " X ", viewport.screen[0] - 130, 89);
+	context.lineWidth = 0.5;
+	context.strokeText(coin_cnt + " X ", viewport.screen[0] - 130, 90);
 
 	context.textAlign = "left";
 	context.font = "bold 80px malgun gothic"
 	context.fillStyle = "#ffffff";
 	context.fillText(min_countDown + " : " + sec_countDown, viewport.screen[0] / 2 - 115, 115);
 	context.strokeStyle = "black";
+	context.lineWidth = 2;
 	context.strokeText(min_countDown + " : " + sec_countDown, viewport.screen[0] / 2 - 115, 115);
+
+	context.fillStyle = '#ddd';
+	context.fillRect(viewport.screen[0] / 2 - 108, 140, 200, 10);
+
+	context.fillStyle = '#ffd400';
+	context.strokeStyle = 'black';
+	context.lineWidth = 2;
+	context.strokeRect(viewport.screen[0] / 2 - 108, 140, time_bar, 10);
+	context.fillRect(viewport.screen[0] / 2 - 108, 140, time_bar, 10);
 
 	requestAnimationFrame(drawGame);
 }
@@ -958,9 +970,12 @@ function timerCount(){
         min_countDown = parseInt(time / 60);
         sec_countDown = time % 60;
         
+		if(sec_countDown < 10) {
+			sec_countDown = "0" + sec_countDown;
+		}
 		// process bar
-        if(width > 0){
-        	width -= width / time;
+        if(time_bar > 0){
+        	time_bar -= time_bar / time;
         }
         time--;
 		timerId = x;
